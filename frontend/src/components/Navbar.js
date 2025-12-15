@@ -3,9 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
 
+// Dark Theme Toggle import
+import { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
+
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Dark Theme Toggle
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
 
   const handleLogout = () => {
     logout();
@@ -14,8 +22,11 @@ const Navbar = () => {
 
   return (
     <nav style={{
-      background: '#007bff',
-      color: 'white',
+
+      // Dark Theme k color 
+      background: 'var(--accent-color)',
+      color: 'var(--text-color)',
+
       padding: '15px 20px',
       marginBottom: '20px',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
@@ -28,7 +39,16 @@ const Navbar = () => {
         alignItems: 'center'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-          <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', fontSize: '20px', fontWeight: 'bold' }}>
+          
+          <Link
+            to="/dashboard"
+            style={{
+              color: 'var(--text-color)',
+              textDecoration: 'none',
+              fontSize: '20px',
+              fontWeight: 'bold'
+            }}
+          >
             API Management
           </Link>
           {user && (
@@ -50,6 +70,8 @@ const Navbar = () => {
         </div>
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+
+
             <span>{user.username}</span>
             <button
               onClick={handleLogout}
@@ -70,6 +92,20 @@ const Navbar = () => {
             </button>
           </div>
         )}
+        {/* Toggle of Dark */}
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--text-color)',
+            color: 'var(--text-color)',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+        </button>
       </div>
     </nav>
   );

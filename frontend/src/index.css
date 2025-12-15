@@ -1,20 +1,46 @@
+:root {
+  --bg-color: #f5f5f5;
+  --card-color: #ffffff;
+  --text-color: #333333;
+  --muted-text: #666666;
+  --border-color: #dddddd;
+  --table-header: #f8f9fa;
+  --error-bg: #f8d7da;
+  --accent: #007bff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --card-color: #2d2d2d;
+  --text-color: #e0e0e0;
+  --muted-text: #aaaaaa;
+  --border-color: #444444;
+  --table-header: #2a2a2a;
+  --error-bg: #5a1f24;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+
+  /* Dark Theme */
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -25,7 +51,8 @@ code {
 }
 
 .card {
-  background: white;
+  background: var(--card-color);
+
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -86,13 +113,15 @@ code {
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-color);
 }
 
 .form-control {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  background-color: var(--card-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
 }
@@ -111,11 +140,12 @@ code {
 .table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: var(--table-header);
+
   font-weight: 600;
 }
 
@@ -156,8 +186,8 @@ code {
 
 .error {
   color: #dc3545;
+  background-color: var(--error-bg);
   padding: 10px;
-  background-color: #f8d7da;
   border-radius: 6px;
   margin-bottom: 15px;
 }
@@ -170,7 +200,8 @@ code {
 }
 
 .stat-card {
-  background: white;
+  background: var(--card-color);
+
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -178,14 +209,14 @@ code {
 
 .stat-card h3 {
   font-size: 14px;
-  color: #666;
+  color: var(--text-color);
   margin-bottom: 10px;
 }
 
 .stat-card .value {
   font-size: 32px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-color);
 }
 
 .modal {
@@ -202,7 +233,8 @@ code {
 }
 
 .modal-content {
-  background: white;
+  background: var(--card-color);
+
   padding: 30px;
   border-radius: 8px;
   max-width: 500px;
