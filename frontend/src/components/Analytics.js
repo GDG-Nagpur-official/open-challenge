@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { logsAPI } from '../utils/api';
 import { toast } from 'react-toastify';
 import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react';
@@ -9,31 +9,43 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
-  const fetchData = async () => {
+  const pageSize = 20;
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [statsResponse, logsResponse] = await Promise.all([
         logsAPI.getStats(),
-        logsAPI.getAll(page, 20)
+        logsAPI.getAll(page, pageSize)
       ]);
+
       setStats(statsResponse.data);
       setLogs(logsResponse.data.logs);
       setTotalPages(logsResponse.data.pages);
+      setTotalItems(
+        logsResponse.data.total ||
+        logsResponse.data.count ||
+        0
+      );
     } catch (error) {
       toast.error('Failed to fetch analytics data');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, pageSize]);
 
   useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [fetchData]);
 
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
+
+  const startItem = (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, totalItems);
 
   return (
     <div className="container">
@@ -75,6 +87,7 @@ const Analytics = () => {
 
       <div className="card">
         <h2 style={{ marginBottom: '20px' }}>Recent Requests</h2>
+
         {logs.length === 0 ? (
           <p>No logs found</p>
         ) : (
@@ -93,15 +106,29 @@ const Analytics = () => {
                 {logs.map((log) => (
                   <tr key={log._id}>
                     <td>
-                      <span className={`badge badge-${log.method === 'GET' ? 'info' : log.method === 'POST' ? 'success' : 'warning'}`}>
+                      <span
+                        className={`badge badge-${
+                          log.method === 'GET'
+                            ? 'info'
+                            : log.method === 'POST'
+                            ? 'success'
+                            : 'warning'
+                        }`}
+                      >
                         {log.method}
                       </span>
                     </td>
-                    <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {log.endpoint}
                     </td>
                     <td>
-                      <span className={`badge badge-${log.status_code >= 200 && log.status_code < 300 ? 'success' : 'danger'}`}>
+                      <span
+                        className={`badge badge-${
+                          log.status_code >= 200 && log.status_code < 300
+                            ? 'success'
+                            : 'danger'
+                        }`}
+                      >
                         {log.status_code}
                       </span>
                     </td>
@@ -113,22 +140,18 @@ const Analytics = () => {
             </table>
 
             {totalPages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 1}
-                >
-                  Previous
-                </button>
-                <span style={{ padding: '10px' }}>Page {page} of {totalPages}</span>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setPage(page + 1)}
-                  disabled={page === totalPages}
-                >
-                  Next
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', marginTop: '20px', gap: '10px' }}>
+                <div>
+                  Showing {startItem}-{endItem} of {totalItems} items
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button className="btn btn-secondary" onClick={() => setPage(1)} disabled={page === 1}>First</button>
+                  <button className="btn btn-secondary" onClick={() => setPage(page - 1)} disabled={page === 1}>Previous</button>
+                  <span style={{ padding: '10px' }}>Page {page} of {totalPages}</span>
+                  <button className="btn btn-secondary" onClick={() => setPage(page + 1)} disabled={page === totalPages}>Next</button>
+                  <button className="btn btn-secondary" onClick={() => setPage(totalPages)} disabled={page === totalPages}>Last</button>
+                </div>
               </div>
             )}
           </>
