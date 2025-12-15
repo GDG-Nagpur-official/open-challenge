@@ -2,7 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
-from database import init_indexes
+from database import DatabaseUnavailableError, init_indexes
+from pymongo.errors import PyMongoError
 
 from routes.auth import auth_bp
 from routes.apis import apis_bp
@@ -24,7 +25,12 @@ app.register_blueprint(execute_bp)
 
 @app.before_request
 def initialize_db():
-    init_indexes()
+    try:
+        init_indexes()
+    except DatabaseUnavailableError as exc:
+        return jsonify({'error': 'Database unavailable', 'details': str(exc)}), 503
+    except PyMongoError as exc:
+        return jsonify({'error': 'Database error', 'details': str(exc)}), 503
 
 @app.route('/')
 def index():
@@ -51,6 +57,10 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(DatabaseUnavailableError)
+def handle_database_unavailable(error):
+    return jsonify({'error': 'Database unavailable', 'details': str(error)}), 503
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=Config.PORT, debug=(Config.FLASK_ENV == 'development'))
