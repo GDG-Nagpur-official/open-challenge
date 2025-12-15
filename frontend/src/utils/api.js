@@ -27,11 +27,20 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const refreshToken = localStorage.getItem('refresh_token');
+        
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
         const response = await axios.post(`${API_URL}/api/auth/refresh`, {}, {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
@@ -41,6 +50,7 @@ api.interceptors.response.use(
         const { access_token } = response.data;
         localStorage.setItem('access_token', access_token);
 
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return api(originalRequest);
       } catch (refreshError) {
