@@ -82,6 +82,26 @@ api-management-system/
 
 ## Getting Started
 
+
+## 📘 API Documentation (Swagger / OpenAPI)
+
+This project includes interactive API documentation using Swagger UI.
+
+### Endpoints
+- Swagger UI: `/api/docs`
+- OpenAPI Spec: `/api/openapi.json`
+
+### Features
+- Interactive API explorer
+- JWT Bearer authentication support
+- Request/response visibility
+- Self-documenting API structure
+
+To access protected endpoints, click **Authorize** in Swagger UI and enter:
+Bearer <your_jwt_token>
+
+This improves developer experience and enables easier third-party integration.
+
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
