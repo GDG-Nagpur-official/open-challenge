@@ -1,90 +1,139 @@
+import json
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson import ObjectId
+import redis
+
 from database import apis_collection
 from models import API
 from utils import serialize_doc, serialize_docs
-from bson import ObjectId
-from datetime import datetime
 
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
+
+redis_client = redis.Redis.from_url("redis://localhost:6379/0", decode_responses=True)
+
+
+def cache_get(key):
+    data = redis_client.get(key)
+    if not data:
+        return None
+    return json.loads(data)
+
+
+def cache_set(key, value, ttl):
+    redis_client.setex(key, ttl, json.dumps(value))
+
+
+def cache_delete_pattern(pattern):
+    for k in redis_client.scan_iter(match=pattern):
+        redis_client.delete(k)
+
 
 @apis_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_apis():
     user_id = get_jwt_identity()
-    
+
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     skip = (page - 1) * limit
-    
-    apis = list(apis_collection.find({'user_id': ObjectId(user_id)}).skip(skip).limit(limit).sort('created_at', -1))
+
+    cache_key = f"apis:list:{user_id}:page={page}:limit={limit}"
+    cached = cache_get(cache_key)
+    if cached:
+        return jsonify(cached), 200
+
+    apis = list(
+        apis_collection
+        .find({'user_id': ObjectId(user_id)})
+        .skip(skip)
+        .limit(limit)
+        .sort('created_at', -1)
+    )
     total = apis_collection.count_documents({'user_id': ObjectId(user_id)})
-    
-    return jsonify({
+
+    response = {
         'apis': serialize_docs(apis),
         'total': total,
         'page': page,
         'pages': (total + limit - 1) // limit
-    }), 200
+    }
+
+    cache_set(cache_key, response, ttl=300)
+    return jsonify(response), 200
+
 
 @apis_bp.route('/<api_id>', methods=['GET'])
 @jwt_required()
 def get_api(api_id):
     user_id = get_jwt_identity()
-    
+
+    cache_key = f"apis:detail:{user_id}:{api_id}"
+    cached = cache_get(cache_key)
+    if cached:
+        return jsonify(cached), 200
+
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id), 'user_id': ObjectId(user_id)})
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid API ID'}), 400
-    
+
     if not api:
         return jsonify({'error': 'API not found'}), 404
-    
-    return jsonify({'api': serialize_doc(api)}), 200
+
+    response = {'api': serialize_doc(api)}
+    cache_set(cache_key, response, ttl=60)
+    return jsonify(response), 200
+
 
 @apis_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_api():
     user_id = get_jwt_identity()
     data = request.get_json()
-    
+
     name = data.get('name')
     description = data.get('description', '')
     endpoint = data.get('endpoint')
     method = data.get('method', 'GET')
     headers = data.get('headers', {})
     params = data.get('params', {})
-    
+
     if not all([name, endpoint]):
         return jsonify({'error': 'Name and endpoint are required'}), 400
-    
+
     if method not in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']:
         return jsonify({'error': 'Invalid HTTP method'}), 400
-    
+
     api_data = API.create(user_id, name, description, endpoint, method, headers, params)
     result = apis_collection.insert_one(api_data)
-    
+
     api_data['_id'] = result.inserted_id
-    
+
+    cache_delete_pattern(f"apis:list:{user_id}:*")
+
     return jsonify({
         'message': 'API created successfully',
         'api': serialize_doc(api_data)
     }), 201
+
 
 @apis_bp.route('/<api_id>', methods=['PUT'])
 @jwt_required()
 def update_api(api_id):
     user_id = get_jwt_identity()
     data = request.get_json()
-    
+
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id), 'user_id': ObjectId(user_id)})
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid API ID'}), 400
-    
+
     if not api:
         return jsonify({'error': 'API not found'}), 404
-    
+
     update_data = {}
     if 'name' in data:
         update_data['name'] = data['name']
@@ -102,31 +151,40 @@ def update_api(api_id):
         update_data['params'] = data['params']
     if 'status' in data:
         update_data['status'] = data['status']
-    
+
     update_data['updated_at'] = datetime.utcnow()
-    
+
     apis_collection.update_one({'_id': ObjectId(api_id)}, {'$set': update_data})
-    
+
     updated_api = apis_collection.find_one({'_id': ObjectId(api_id)})
-    
+
+    detail_key = f"apis:detail:{user_id}:{api_id}"
+    redis_client.delete(detail_key)
+    cache_delete_pattern(f"apis:list:{user_id}:*")
+
     return jsonify({
         'message': 'API updated successfully',
         'api': serialize_doc(updated_api)
     }), 200
 
+
 @apis_bp.route('/<api_id>', methods=['DELETE'])
 @jwt_required()
 def delete_api(api_id):
     user_id = get_jwt_identity()
-    
+
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id), 'user_id': ObjectId(user_id)})
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid API ID'}), 400
-    
+
     if not api:
         return jsonify({'error': 'API not found'}), 404
-    
+
     apis_collection.delete_one({'_id': ObjectId(api_id)})
-    
+
+    detail_key = f"apis:detail:{user_id}:{api_id}"
+    redis_client.delete(detail_key)
+    cache_delete_pattern(f"apis:list:{user_id}:*")
+
     return jsonify({'message': 'API deleted successfully'}), 200
