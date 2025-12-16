@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import ExportLogs from "./components/ExportLogs";
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
@@ -59,6 +59,10 @@ function App() {
             pauseOnHover
           />
         </div>
+        
+    <div>
+      <ExportLogs />
+    </div>
       </Router>
     </AuthProvider>
   );
