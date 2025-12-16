@@ -7,3 +7,4 @@ bcrypt==4.1.2
 validators==0.22.0
 requests==2.31.0
 gunicorn==21.2.0
+pip install flasgger

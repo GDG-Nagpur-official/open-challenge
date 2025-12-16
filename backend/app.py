@@ -3,6 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from database import init_indexes
+from flasgger import Swagger
+
 
 from routes.auth import auth_bp
 from routes.apis import apis_bp
@@ -11,20 +13,54 @@ from routes.logs import logs_bp
 from routes.execute import execute_bp
 
 app = Flask(__name__)
+swagger_config = {
+    "openapi": "3.0.2",
+    "title": "Open Challenge API",
+    "version": "1.0.0",
+    "description": "Interactive API documentation for Open Challenge backend",
+    "specs_route": "/api/docs"
+}
+
+swagger_template = {
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Open Challenge API",
+        "description": "Interactive API documentation for Open Challenge backend",
+        "version": "1.0.0"
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
+}
+
+swagger = Swagger(app, config=swagger_config, template=swagger_template)
+
+
 app.config.from_object(Config)
 
 CORS(app)
 jwt = JWTManager(app)
 
-app.register_blueprint(auth_bp)
-app.register_blueprint(apis_bp)
-app.register_blueprint(api_keys_bp)
-app.register_blueprint(logs_bp)
-app.register_blueprint(execute_bp)
+# app.register_blueprint(auth_bp)
+# app.register_blueprint(apis_bp)
+# app.register_blueprint(api_keys_bp)
+# app.register_blueprint(logs_bp)
+# app.register_blueprint(execute_bp)
 
-@app.before_request
-def initialize_db():
-    init_indexes()
+# @app.before_request
+# def initialize_db():
+ #   init_indexes()
 
 @app.route('/')
 def index():
@@ -42,7 +78,21 @@ def index():
 
 @app.route('/health')
 def health():
+    """
+    Health Check API
+    ---
+    tags:
+      - Health
+    responses:
+      200:
+        description: Service is healthy
+        content:
+          application/json:
+            example:
+              status: healthy
+    """
     return jsonify({'status': 'healthy'}), 200
+
 
 @app.errorhandler(404)
 def not_found(error):

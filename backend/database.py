@@ -1,15 +1,34 @@
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 from config import Config
 
-client = MongoClient(Config.MONGODB_URI)
-db = client.get_database()
+client = None
+db = None
 
-users_collection = db['users']
-apis_collection = db['apis']
-api_keys_collection = db['api_keys']
-logs_collection = db['logs']
+try:
+    client = MongoClient(
+        Config.MONGODB_URI,
+        serverSelectionTimeoutMS=2000
+    )
+    client.server_info()  # force connection check
+    db = client.get_database()
+except ServerSelectionTimeoutError:
+    # MongoDB is not running – allow app to start
+    client = None
+    db = None
+
+
+# Collections (safe even if db is None)
+users_collection = db['users'] if db else None
+apis_collection = db['apis'] if db else None
+api_keys_collection = db['api_keys'] if db else None
+logs_collection = db['logs'] if db else None
+
 
 def init_indexes():
+    if not db:
+        return  # skip index creation if DB unavailable
+
     users_collection.create_index('email', unique=True)
     users_collection.create_index('username', unique=True)
     api_keys_collection.create_index('key', unique=True)
