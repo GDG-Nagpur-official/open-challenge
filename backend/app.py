@@ -10,11 +10,26 @@ from routes.api_keys import api_keys_bp
 from routes.logs import logs_bp
 from routes.execute import execute_bp
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_jwt_extended import get_jwt_identity
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
 CORS(app)
 jwt = JWTManager(app)
+
+def rate_limit_key():
+    identity = get_jwt_identity()
+    return identity if identity else get_remote_address()
+
+limiter = Limiter(
+    key_func=rate_limit_key,
+    app=app,
+    headers_enabled=True  
+)
+
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(apis_bp)
@@ -27,6 +42,7 @@ def initialize_db():
     init_indexes()
 
 @app.route('/')
+@limiter.limit("10 per minute", key_func=get_remote_address)
 def index():
     return jsonify({
         'message': 'API Management System',
@@ -41,6 +57,7 @@ def index():
     }), 200
 
 @app.route('/health')
+@limiter.limit("30 per minute", key_func=get_remote_address)
 def health():
     return jsonify({'status': 'healthy'}), 200
 

@@ -6,14 +6,17 @@ from bson import ObjectId
 import requests
 import time
 
+from extensions import limiter  
+
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
 @execute_bp.route('/<api_id>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 @api_key_required
+@limiter.limit("100 per hour")   
 def execute_api(api_id):
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id)})
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid API ID'}), 400
     
     if not api:
