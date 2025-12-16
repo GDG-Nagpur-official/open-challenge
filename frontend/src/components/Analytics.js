@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { logsAPI } from '../utils/api';
 import { toast } from 'react-toastify';
 import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react';
@@ -10,7 +10,7 @@ const Analytics = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [statsResponse, logsResponse] = await Promise.all([
@@ -25,11 +25,11 @@ const Analytics = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [fetchData]);
 
   if (loading) {
     return <div className="loading">Loading...</div>;
