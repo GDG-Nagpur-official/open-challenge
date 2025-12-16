@@ -1,10 +1,61 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import logs_collection
+from database import logs_collection,db
+import pandas as pd
+from datetime import datetime
 from utils import serialize_docs
 from bson import ObjectId
 
 logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
+
+@logs_bp.route("/export", methods=["GET"])
+@jwt_required()
+def export_logs():
+    """
+    Export logs data in CSV / JSON / Excel format
+    """
+    export_format = request.args.get("format", "csv")
+    from_date = request.args.get("from")
+    to_date = request.args.get("to")
+
+    query = {}
+
+    if from_date and to_date:
+        query["timestamp"] = {
+            "$gte": datetime.fromisoformat(from_date),
+            "$lte": datetime.fromisoformat(to_date)
+        }
+
+    logs = list(db.logs.find(query, {"_id": 0}))
+
+    if not logs:
+        return jsonify({"message": "No data available"}), 404
+
+    df = pd.DataFrame(logs)
+
+    if export_format == "json":
+        return jsonify(logs)
+
+    if export_format == "csv":
+        return Response(
+            df.to_csv(index=False),
+            mimetype="text/csv",
+            headers={
+                "Content-Disposition": "attachment; filename=logs.csv"
+            }
+        )
+
+    if export_format == "excel":
+        output = df.to_excel(index=False)
+        return Response(
+            output,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": "attachment; filename=logs.xlsx"
+            }
+        )
+
+    return jsonify({"error": "Invalid format"}), 400
 
 @logs_bp.route('/', methods=['GET'])
 @jwt_required()
@@ -69,3 +120,4 @@ def get_stats():
         'error_requests': error_requests,
         'avg_response_time': round(avg_response_time, 2)
     }), 200
+

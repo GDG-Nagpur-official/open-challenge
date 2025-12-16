@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { logsAPI } from '../utils/api';
 import { toast } from 'react-toastify';
 import { Activity, CheckCircle, XCircle, Clock } from 'lucide-react';
+import ExportLogs from "./ExportLogs";
 
 const Analytics = () => {
   const [stats, setStats] = useState(null);
@@ -38,6 +39,11 @@ const Analytics = () => {
   return (
     <div className="container">
       <h1 style={{ marginBottom: '20px' }}>Analytics</h1>
+
+      {/* 🔽 Export Logs Feature (added safely) */}
+      <div style={{ marginBottom: '20px' }}>
+        <ExportLogs />
+      </div>
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -93,19 +99,44 @@ const Analytics = () => {
                 {logs.map((log) => (
                   <tr key={log._id}>
                     <td>
-                      <span className={`badge badge-${log.method === 'GET' ? 'info' : log.method === 'POST' ? 'success' : 'warning'}`}>
+                      <span
+                        className={`badge badge-${
+                          log.method === 'GET'
+                            ? 'info'
+                            : log.method === 'POST'
+                            ? 'success'
+                            : 'warning'
+                        }`}
+                      >
                         {log.method}
                       </span>
                     </td>
-                    <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td
+                      style={{
+                        maxWidth: '300px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
                       {log.endpoint}
                     </td>
                     <td>
-                      <span className={`badge badge-${log.status_code >= 200 && log.status_code < 300 ? 'success' : 'danger'}`}>
+                      <span
+                        className={`badge badge-${
+                          log.status_code >= 200 && log.status_code < 300
+                            ? 'success'
+                            : 'danger'
+                        }`}
+                      >
                         {log.status_code}
                       </span>
                     </td>
-                    <td>{log.response_time ? `${log.response_time.toFixed(2)}ms` : 'N/A'}</td>
+                    <td>
+                      {log.response_time
+                        ? `${log.response_time.toFixed(2)}ms`
+                        : 'N/A'}
+                    </td>
                     <td>{new Date(log.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
@@ -113,7 +144,14 @@ const Analytics = () => {
             </table>
 
             {totalPages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  marginTop: '20px'
+                }}
+              >
                 <button
                   className="btn btn-secondary"
                   onClick={() => setPage(page - 1)}
@@ -121,7 +159,9 @@ const Analytics = () => {
                 >
                   Previous
                 </button>
-                <span style={{ padding: '10px' }}>Page {page} of {totalPages}</span>
+                <span style={{ padding: '10px' }}>
+                  Page {page} of {totalPages}
+                </span>
                 <button
                   className="btn btn-secondary"
                   onClick={() => setPage(page + 1)}
