@@ -63,7 +63,20 @@ export const authAPI = {
 };
 
 export const apisAPI = {
-  getAll: (page = 1, limit = 10) => api.get(`/api/apis?page=${page}&limit=${limit}`),
+  getAll: (page = 1, limit = 10, search = '', method = '', status = '', sortBy = 'created_at', sortOrder = 'desc') => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      sort_by: sortBy,
+      sort_order: sortOrder
+    });
+
+    if (search) params.append('search', search);
+    if (method) params.append('method', method);
+    if (status) params.append('status', status);
+
+    return api.get(`/api/apis?${params.toString()}`);
+  },
   getOne: (id) => api.get(`/api/apis/${id}`),
   create: (data) => api.post('/api/apis', data),
   update: (id, data) => api.put(`/api/apis/${id}`, data),
@@ -84,6 +97,11 @@ export const logsAPI = {
     return api.get(url);
   },
   getStats: () => api.get('/api/logs/stats'),
+};
+
+export const userAPI = {
+  getProfile: () => api.get('/api/user/profile'),
+  updateSettings: (data) => api.put('/api/user/settings', data),
 };
 
 export default api;

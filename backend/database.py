@@ -15,5 +15,6 @@ def init_indexes():
     api_keys_collection.create_index('key', unique=True)
     api_keys_collection.create_index('user_id')
     apis_collection.create_index('user_id')
+    apis_collection.create_index([('name', 'text'), ('endpoint', 'text')])
     logs_collection.create_index([('timestamp', -1)])
     logs_collection.create_index('api_id')
