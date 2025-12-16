@@ -34,6 +34,7 @@ const APIKeys = () => {
       setKeyName('');
       fetchKeys();
     } catch (error) {
+        console.log(error)
       toast.error('Failed to create API key');
     }
   };
