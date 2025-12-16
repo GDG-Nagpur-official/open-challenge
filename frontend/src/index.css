@@ -1,3 +1,59 @@
+:root {
+  /* Light theme variables */
+  --bg-color: #f5f5f5;
+  --text-color: #333;
+  --card-bg: #ffffff;
+  --border-color: #ddd;
+  --btn-primary-bg: #007bff;
+  --btn-primary-hover: #0056b3;
+  --btn-secondary-bg: #6c757d;
+  --btn-secondary-hover: #545b62;
+  --btn-danger-bg: #dc3545;
+  --btn-danger-hover: #c82333;
+  --btn-success-bg: #28a745;
+  --btn-success-hover: #218838;
+  --table-header-bg: #f8f9fa;
+  --badge-success-bg: #d4edda;
+  --badge-success-color: #155724;
+  --badge-danger-bg: #f8d7da;
+  --badge-danger-color: #721c24;
+  --badge-warning-bg: #fff3cd;
+  --badge-warning-color: #856404;
+  --badge-info-bg: #d1ecf1;
+  --badge-info-color: #0c5460;
+  --error-bg: #f8d7da;
+  --error-color: #dc3545;
+  --stat-card-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  /* Dark theme variables */
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --card-bg: #1e1e1e;
+  --border-color: #333;
+  --btn-primary-bg: #0d6efd;
+  --btn-primary-hover: #0b5ed7;
+  --btn-secondary-bg: #6c757d;
+  --btn-secondary-hover: #5c636a;
+  --btn-danger-bg: #dc3545;
+  --btn-danger-hover: #bb2d3b;
+  --btn-success-bg: #198754;
+  --btn-success-hover: #157347;
+  --table-header-bg: #2d2d2d;
+  --badge-success-bg: #0f5132;
+  --badge-success-color: #d1e7dd;
+  --badge-danger-bg: #58151c;
+  --badge-danger-color: #ea868f;
+  --badge-warning-bg: #664d03;
+  --badge-warning-color: #ffecb5;
+  --badge-info-bg: #055160;
+  --badge-info-color: #a6e3e9;
+  --error-bg: #58151c;
+  --error-color: #ea868f;
+  --stat-card-bg: #1e1e1e;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,7 +66,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 code {
@@ -25,11 +83,12 @@ code {
 }
 
 .card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
+  transition: background-color 0.3s ease;
 }
 
 .btn {
@@ -43,39 +102,39 @@ code {
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: var(--btn-primary-bg);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: var(--btn-primary-hover);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background-color: var(--btn-secondary-bg);
   color: white;
 }
 
 .btn-secondary:hover {
-  background-color: #545b62;
+  background-color: var(--btn-secondary-hover);
 }
 
 .btn-danger {
-  background-color: #dc3545;
+  background-color: var(--btn-danger-bg);
   color: white;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: var(--btn-danger-hover);
 }
 
 .btn-success {
-  background-color: #28a745;
+  background-color: var(--btn-success-bg);
   color: white;
 }
 
 .btn-success:hover {
-  background-color: #218838;
+  background-color: var(--btn-success-hover);
 }
 
 .form-group {
@@ -86,20 +145,23 @@ code {
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-color);
 }
 
 .form-control {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--btn-primary-bg);
 }
 
 .table {
@@ -111,12 +173,14 @@ code {
 .table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: var(--table-header-bg);
   font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
 .badge {
@@ -128,23 +192,23 @@ code {
 }
 
 .badge-success {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--badge-success-bg);
+  color: var(--badge-success-color);
 }
 
 .badge-danger {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--badge-danger-bg);
+  color: var(--badge-danger-color);
 }
 
 .badge-warning {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: var(--badge-warning-bg);
+  color: var(--badge-warning-color);
 }
 
 .badge-info {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background-color: var(--badge-info-bg);
+  color: var(--badge-info-color);
 }
 
 .loading {
@@ -155,9 +219,9 @@ code {
 }
 
 .error {
-  color: #dc3545;
+  color: var(--error-color);
   padding: 10px;
-  background-color: #f8d7da;
+  background-color: var(--error-bg);
   border-radius: 6px;
   margin-bottom: 15px;
 }
@@ -170,22 +234,23 @@ code {
 }
 
 .stat-card {
-  background: white;
+  background: var(--stat-card-bg);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
 .stat-card h3 {
   font-size: 14px;
-  color: #666;
+  color: var(--text-color);
   margin-bottom: 10px;
 }
 
 .stat-card .value {
   font-size: 32px;
   font-weight: 700;
-  color: #333;
+  color: var(--text-color);
 }
 
 .modal {
@@ -202,13 +267,14 @@ code {
 }
 
 .modal-content {
-  background: white;
+  background: var(--card-bg);
   padding: 30px;
   border-radius: 8px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  transition: background-color 0.3s ease;
 }
 
 .modal-header {

@@ -10,6 +10,11 @@ class User:
             'username': username,
             'email': email,
             'password': hashed_password.decode('utf-8'),
+            'settings': {
+                'theme': 'light',
+                'email_notifications': True,
+                'default_rate_limit': 1000
+            },
             'created_at': datetime.utcnow(),
             'updated_at': datetime.utcnow()
         }

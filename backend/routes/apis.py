@@ -12,14 +12,47 @@ apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 @jwt_required()
 def get_apis():
     user_id = get_jwt_identity()
-    
+
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     skip = (page - 1) * limit
-    
-    apis = list(apis_collection.find({'user_id': ObjectId(user_id)}).skip(skip).limit(limit).sort('created_at', -1))
-    total = apis_collection.count_documents({'user_id': ObjectId(user_id)})
-    
+
+    # Build query
+    query = {'user_id': ObjectId(user_id)}
+
+    # Search functionality
+    search = request.args.get('search', '').strip()
+    if search:
+        query['$or'] = [
+            {'name': {'$regex': search, '$options': 'i'}},
+            {'endpoint': {'$regex': search, '$options': 'i'}}
+        ]
+
+    # Filter by method
+    method = request.args.get('method', '').strip()
+    if method:
+        query['method'] = method.upper()
+
+    # Filter by status
+    status = request.args.get('status', '').strip()
+    if status:
+        query['status'] = status.lower()
+
+    # Sorting
+    sort_by = request.args.get('sort_by', 'created_at')
+    sort_order = request.args.get('sort_order', 'desc')
+
+    sort_field = sort_by
+    sort_direction = -1 if sort_order == 'desc' else 1
+
+    # Validate sort field
+    valid_sort_fields = ['name', 'created_at', 'updated_at']
+    if sort_field not in valid_sort_fields:
+        sort_field = 'created_at'
+
+    apis = list(apis_collection.find(query).skip(skip).limit(limit).sort(sort_field, sort_direction))
+    total = apis_collection.count_documents(query)
+
     return jsonify({
         'apis': serialize_docs(apis),
         'total': total,
