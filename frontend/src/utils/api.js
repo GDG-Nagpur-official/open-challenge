@@ -9,6 +9,51 @@ const api = axios.create({
   },
 });
 
+// Single-flight refresh to prevent multiple 401s from triggering a refresh storm.
+let refreshPromise = null;
+
+const clearAuthAndRedirectToLogin = () => {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('user');
+  // Replace (not push) so back button doesn't return to protected pages.
+  window.location.replace('/login');
+};
+
+const refreshAccessToken = async () => {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken = localStorage.getItem('refresh_token');
+  if (!refreshToken) {
+    return Promise.reject(new Error('No refresh token available'));
+  }
+
+  refreshPromise = axios
+    .post(
+      `${API_URL}/api/auth/refresh`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    )
+    .then((response) => {
+      const { access_token } = response.data;
+      localStorage.setItem('access_token', access_token);
+      return access_token;
+    })
+    .catch((err) => {
+      clearAuthAndRedirectToLogin();
+      throw err;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+};
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -27,27 +72,28 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // If there's no config, we can't safely retry.
+    if (!originalRequest) return Promise.reject(error);
+
+    const status = error.response?.status;
+    const url = originalRequest.url || '';
+
+    // Never try to refresh for auth routes. Prevents accidental loops.
+    const isAuthRoute = url.includes('/api/auth/login') ||
+      url.includes('/api/auth/register') ||
+      url.includes('/api/auth/refresh');
+
+    if (status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        const response = await axios.post(`${API_URL}/api/auth/refresh`, {}, {
-          headers: {
-            Authorization: `Bearer ${refreshToken}`,
-          },
-        });
+        const accessToken = await refreshAccessToken();
 
-        const { access_token } = response.data;
-        localStorage.setItem('access_token', access_token);
-
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        // refreshAccessToken already cleared auth + redirected.
         return Promise.reject(refreshError);
       }
     }
