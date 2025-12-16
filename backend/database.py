@@ -14,6 +14,13 @@ def init_indexes():
     users_collection.create_index('username', unique=True)
     api_keys_collection.create_index('key', unique=True)
     api_keys_collection.create_index('user_id')
-    apis_collection.create_index('user_id')
+        
+        
+    apis_collection.create_index([('user_id', 1), ('created_at', -1)])
+    apis_collection.create_index([('name', 'text'), ('endpoint', 'text')])  # search
+    apis_collection.create_index('method')  # filter
+    apis_collection.create_index('status')  # filter
+    apis_collection.create_index('created_at')  # sort
+
     logs_collection.create_index([('timestamp', -1)])
     logs_collection.create_index('api_id')

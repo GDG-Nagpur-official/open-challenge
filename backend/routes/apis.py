@@ -4,22 +4,97 @@ from database import apis_collection
 from models import API
 from utils import serialize_doc, serialize_docs
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, time
+from pymongo import ASCENDING, DESCENDING
 
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 
-@apis_bp.route('/', methods=['GET'])
+# NOTE:
+# Use empty route '' instead of '/' with url_prefix to avoid
+# Flask 308 redirects, which break CORS preflight (OPTIONS) requests.
+@apis_bp.route('', methods=['GET'])
 @jwt_required()
 def get_apis():
-    user_id = get_jwt_identity()
+    user_id = ObjectId(get_jwt_identity())
+    args = request.args
+
+    query = {'user_id': user_id}
+
+    # Search (name + endpoint)
+    if args.get('search'):
+        query['$or'] = [
+            {'name': {'$regex': args['search'], '$options': 'i'}},
+            {'endpoint': {'$regex': args['search'], '$options': 'i'}}
+        ]
+
+    # Filters
+    if args.get('method'):
+        query['method'] = args['method']
+
+    if args.get('status'):
+        query['status'] = args['status']
+
+    # Date Range Filter
+    date_from = args.get('dateFrom')
+    date_to = args.get('dateTo')
+    date_field = args.get('dateField', 'created_at')
     
-    page = int(request.args.get('page', 1))
-    limit = int(request.args.get('limit', 10))
+    # Validate date_field to prevent injection
+    if date_field not in ['created_at', 'updated_at']:
+        date_field = 'created_at'
+    
+    if date_from or date_to:
+        date_query = {}
+        
+        if date_from:
+            try:
+                # Parse the date string (YYYY-MM-DD format)
+                from_date = datetime.strptime(date_from, '%Y-%m-%d')
+                from_date = datetime.combine(from_date.date(), time.min)
+                date_query['$gte'] = from_date
+            except ValueError:
+                return jsonify({'error': 'Invalid dateFrom format. Use YYYY-MM-DD'}), 400
+        
+        if date_to:
+            try:
+                # Parse the date string (YYYY-MM-DD format)
+                to_date = datetime.strptime(date_to, '%Y-%m-%d')
+                to_date = datetime.combine(to_date.date(), time.max)
+                date_query['$lte'] = to_date
+            except ValueError:
+                return jsonify({'error': 'Invalid dateTo format. Use YYYY-MM-DD'}), 400
+        
+        # Add the date filter to the query
+        query[date_field] = date_query
+
+    # Sorting - Accept both sortBy/sortOrder AND sort_by/sort_order
+    sort_by = args.get('sortBy') or args.get('sort_by', 'created_at')
+    sort_order_param = args.get('sortOrder') or args.get('sort_order', 'desc')
+    
+    # Validate sort_by field to prevent injection
+    allowed_sort_fields = ['name', 'created_at', 'updated_at', 'usage_count', 'method', 'status']
+    if sort_by not in allowed_sort_fields:
+        sort_by = 'created_at'
+    
+    sort_order = DESCENDING if sort_order_param == 'desc' else ASCENDING
+
+    # Pagination
+    page = int(args.get('page', 1))
+    limit = int(args.get('limit', 10))
     skip = (page - 1) * limit
-    
-    apis = list(apis_collection.find({'user_id': ObjectId(user_id)}).skip(skip).limit(limit).sort('created_at', -1))
-    total = apis_collection.count_documents({'user_id': ObjectId(user_id)})
-    
+
+    cursor = (
+        apis_collection
+        .find(query)
+        .collation({"locale": "en", "strength": 2}) 
+        .sort(sort_by, sort_order)
+        .skip(skip)
+        .limit(limit)
+    )
+
+    apis = list(cursor)
+    total = apis_collection.count_documents(query)
+
     return jsonify({
         'apis': serialize_docs(apis),
         'total': total,
@@ -42,7 +117,11 @@ def get_api(api_id):
     
     return jsonify({'api': serialize_doc(api)}), 200
 
-@apis_bp.route('/', methods=['POST'])
+
+# NOTE:
+# Use empty route '' instead of '/' with url_prefix to avoid
+# Flask 308 redirects, which break CORS preflight (OPTIONS) requests.
+@apis_bp.route('', methods=['POST'])
 @jwt_required()
 def create_api():
     user_id = get_jwt_identity()
