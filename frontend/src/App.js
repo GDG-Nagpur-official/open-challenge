@@ -11,9 +11,11 @@ import APIKeys from './components/APIKeys';
 import Analytics from './components/Analytics';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
+import { ThemeProvider } from './context/ThemeProvider';
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <div className="App">
@@ -61,6 +63,7 @@ function App() {
         </div>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 
