@@ -101,10 +101,8 @@ const APIKeys = () => {
                   <td>{key.name}</td>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <code style={{ 
-                        background: '#f5f5f5', 
-                        padding: '5px 10px', 
-                        borderRadius: '4px',
+                      <code style={{
+                        padding: '5px 10px',
                         fontSize: '12px'
                       }}>
                         {key.key.substring(0, 20)}...
