@@ -377,3 +377,9 @@ For issues, questions, or contributions, please open an issue on GitHub.
 ---
 
 **Built with ❤️ using Flask and React**
+
+## Authentication Flow (Simple Explanation)
+
+1. A new user registers using the `/api/auth/register` endpoint.
+2. The user logs in using `/api/auth/login` to receive a JWT token.
+3. This JWT token must be included in the `Authorization` header as:
