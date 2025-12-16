@@ -69,3 +69,78 @@ def get_stats():
         'error_requests': error_requests,
         'avg_response_time': round(avg_response_time, 2)
     }), 200
+
+from flask import Response
+import pandas as pd
+from io import StringIO, BytesIO
+from datetime import datetime
+
+@logs_bp.route('/export', methods=['GET'])
+@jwt_required()
+def export_logs():
+    user_id = get_jwt_identity()
+
+    export_format = request.args.get('format', 'csv')
+    from_date = request.args.get('from')
+    to_date = request.args.get('to')
+    columns = request.args.get('columns')
+
+    if not from_date or not to_date:
+        return jsonify({'error': 'from and to dates are required'}), 400
+
+    try:
+        start = datetime.fromisoformat(from_date)
+        end = datetime.fromisoformat(to_date)
+    except ValueError:
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+    query = {
+        'user_id': ObjectId(user_id),
+        'timestamp': {'$gte': start, '$lte': end}
+    }
+
+    logs = list(logs_collection.find(query).sort('timestamp', -1))
+
+    if not logs:
+        return jsonify({'error': 'No logs found'}), 404
+
+    logs = serialize_docs(logs)
+    df = pd.DataFrame(logs)
+
+    # Column selection
+    if columns:
+        selected_columns = columns.split(',')
+        df = df[selected_columns]
+
+    #CSV EXPORT
+    if export_format == 'csv':
+        stream = StringIO()
+        df.to_csv(stream, index=False)
+
+        return Response(
+            stream.getvalue(),
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': 'attachment; filename=logs.csv'
+            }
+        )
+
+    # JSON EXPORT
+    if export_format == 'json':
+        return jsonify(df.to_dict(orient='records'))
+
+    # EXCEL EXPORT
+    if export_format == 'excel':
+        output = BytesIO()
+        df.to_excel(output, index=False)
+        output.seek(0)
+
+        return Response(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            headers={
+                'Content-Disposition': 'attachment; filename=logs.xlsx'
+            }
+        )
+
+    return jsonify({'error': 'Invalid export format'}), 400
