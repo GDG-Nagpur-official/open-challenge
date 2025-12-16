@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from database import apis_collection, logs_collection
+from database import get_apis_collection, get_logs_collection
 from models import Log
 from utils import api_key_required
 from bson import ObjectId
@@ -11,6 +11,8 @@ execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 @execute_bp.route('/<api_id>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 @api_key_required
 def execute_api(api_id):
+    apis_collection = get_apis_collection()
+    logs_collection = get_logs_collection()
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id)})
     except:

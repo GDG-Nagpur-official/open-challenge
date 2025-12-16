@@ -3,7 +3,7 @@ import string
 from functools import wraps
 from flask import request, jsonify
 from flask_jwt_extended import get_jwt_identity
-from database import api_keys_collection
+from database import get_api_keys_collection
 from bson import ObjectId
 
 def generate_api_key(length=32):
@@ -33,6 +33,7 @@ def api_key_required(f):
         if not api_key:
             return jsonify({'error': 'API key is required'}), 401
         
+        api_keys_collection = get_api_keys_collection()
         key_doc = api_keys_collection.find_one({'key': api_key, 'is_active': True})
         
         if not key_doc:

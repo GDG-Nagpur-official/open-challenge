@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import apis_collection
+from database import get_apis_collection
 from models import API
 from utils import serialize_doc, serialize_docs
 from bson import ObjectId
@@ -11,6 +11,7 @@ apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 @apis_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_apis():
+    apis_collection = get_apis_collection()
     user_id = get_jwt_identity()
     
     page = int(request.args.get('page', 1))
@@ -30,6 +31,7 @@ def get_apis():
 @apis_bp.route('/<api_id>', methods=['GET'])
 @jwt_required()
 def get_api(api_id):
+    apis_collection = get_apis_collection()
     user_id = get_jwt_identity()
     
     try:
@@ -45,6 +47,7 @@ def get_api(api_id):
 @apis_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_api():
+    apis_collection = get_apis_collection()
     user_id = get_jwt_identity()
     data = request.get_json()
     
@@ -74,6 +77,7 @@ def create_api():
 @apis_bp.route('/<api_id>', methods=['PUT'])
 @jwt_required()
 def update_api(api_id):
+    apis_collection = get_apis_collection()
     user_id = get_jwt_identity()
     data = request.get_json()
     
@@ -117,6 +121,7 @@ def update_api(api_id):
 @apis_bp.route('/<api_id>', methods=['DELETE'])
 @jwt_required()
 def delete_api(api_id):
+    apis_collection = get_apis_collection()
     user_id = get_jwt_identity()
     
     try:

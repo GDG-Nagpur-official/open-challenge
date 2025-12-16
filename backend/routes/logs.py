@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import logs_collection
+from database import get_logs_collection
 from utils import serialize_docs
 from bson import ObjectId
 
@@ -9,6 +9,7 @@ logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
 @logs_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_logs():
+    logs_collection = get_logs_collection()
     user_id = get_jwt_identity()
     
     page = int(request.args.get('page', 1))
@@ -38,6 +39,7 @@ def get_logs():
 @logs_bp.route('/stats', methods=['GET'])
 @jwt_required()
 def get_stats():
+    logs_collection = get_logs_collection()
     user_id = get_jwt_identity()
     
     total_requests = logs_collection.count_documents({'user_id': ObjectId(user_id)})

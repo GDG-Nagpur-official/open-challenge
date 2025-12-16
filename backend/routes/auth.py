@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from database import users_collection
+from database import get_users_collection
 from models import User
 from utils import serialize_doc
 from bson import ObjectId
@@ -10,6 +10,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    users_collection = get_users_collection()
     data = request.get_json()
     
     username = data.get('username')
@@ -45,6 +46,7 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    users_collection = get_users_collection()
     data = request.get_json()
     
     email = data.get('email')
@@ -81,6 +83,7 @@ def refresh():
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
+    users_collection = get_users_collection()
     user_id = get_jwt_identity()
     user = users_collection.find_one({'_id': ObjectId(user_id)})
     
