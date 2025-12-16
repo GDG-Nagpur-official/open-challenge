@@ -3,6 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from database import init_indexes
+from database import client
+
 
 from routes.auth import auth_bp
 from routes.apis import apis_bp
@@ -24,7 +26,12 @@ app.register_blueprint(execute_bp)
 
 @app.before_request
 def initialize_db():
-    init_indexes()
+    try:
+        init_indexes()
+    except Exception:
+        # Database not available; ignore to allow health checks
+        pass
+
 
 @app.route('/')
 def index():
@@ -40,9 +47,21 @@ def index():
         }
     }), 200
 
-@app.route('/health')
+@app.route("/health", methods=["GET"])
 def health():
-    return jsonify({'status': 'healthy'}), 200
+    db_status = "disconnected"
+
+    try:
+        client.admin.command("ping")
+        db_status = "connected"
+    except Exception:
+        db_status = "disconnected"
+
+    return jsonify({
+        "status": "ok",
+        "database": db_status
+    }), 200
+
 
 @app.errorhandler(404)
 def not_found(error):
