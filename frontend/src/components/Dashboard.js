@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apisAPI } from '../utils/api';
 import { toast } from 'react-toastify';
 import { Plus, Edit2, Trash2, Eye } from 'lucide-react';
@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchApis = async () => {
+  const fetchApis = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apisAPI.getAll(page, 10);
@@ -25,11 +25,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     fetchApis();
-  }, [page]);
+  }, [fetchApis]);
 
   const handleCreate = () => {
     setSelectedApi(null);

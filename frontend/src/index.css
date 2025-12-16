@@ -4,13 +4,48 @@
   box-sizing: border-box;
 }
 
+:root {
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-text: #333333;
+  --color-text-muted: #666666;
+  --color-border: #dddddd;
+  --color-table-header-bg: #f8f9fa;
+  --color-code-bg: #f5f5f5;
+
+  --color-error-bg: #f8d7da;
+  --color-error-text: #dc3545;
+
+  --shadow-e1: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --overlay: rgba(0, 0, 0, 0.5);
+  --transition: 180ms ease;
+}
+
+html[data-theme='dark'] {
+  --color-bg: #1a1a1a;
+  --color-surface: #2d2d2d;
+  --color-text: #e0e0e0;
+  --color-text-muted: #b8b8b8;
+  --color-border: #444444;
+  --color-table-header-bg: #242424;
+  --color-code-bg: #1f1f1f;
+
+  --color-error-bg: #3b1f1f;
+  --color-error-text: #ff9aa2;
+
+  --shadow-e1: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --overlay: rgba(0, 0, 0, 0.65);
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 code {
@@ -25,11 +60,12 @@ code {
 }
 
 .card {
-  background: white;
+  background: var(--color-surface);
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-e1);
   margin-bottom: 20px;
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
 }
 
 .btn {
@@ -86,15 +122,19 @@ code {
   display: block;
   margin-bottom: 5px;
   font-weight: 500;
-  color: #333;
+  color: var(--color-text);
+  transition: color var(--transition);
 }
 
 .form-control {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 14px;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  transition: background-color var(--transition), color var(--transition), border-color var(--transition);
 }
 
 .form-control:focus {
@@ -111,11 +151,12 @@ code {
 .table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color var(--transition), color var(--transition), background-color var(--transition);
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: var(--color-table-header-bg);
   font-weight: 600;
 }
 
@@ -155,11 +196,12 @@ code {
 }
 
 .error {
-  color: #dc3545;
+  color: var(--color-error-text);
   padding: 10px;
-  background-color: #f8d7da;
+  background-color: var(--color-error-bg);
   border-radius: 6px;
   margin-bottom: 15px;
+  transition: background-color var(--transition), color var(--transition);
 }
 
 .stats-grid {
@@ -170,22 +212,25 @@ code {
 }
 
 .stat-card {
-  background: white;
+  background: var(--color-surface);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-e1);
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
 }
 
 .stat-card h3 {
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-muted);
   margin-bottom: 10px;
+  transition: color var(--transition);
 }
 
 .stat-card .value {
   font-size: 32px;
   font-weight: 700;
-  color: #333;
+  color: var(--color-text);
+  transition: color var(--transition);
 }
 
 .modal {
@@ -194,21 +239,24 @@ code {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--overlay);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  transition: background-color var(--transition);
 }
 
 .modal-content {
-  background: white;
+  background: var(--color-surface);
   padding: 30px;
   border-radius: 8px;
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: var(--shadow-e1);
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
 }
 
 .modal-header {
@@ -227,5 +275,34 @@ code {
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-muted);
+  transition: color var(--transition);
+}
+
+code {
+  background: var(--color-code-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+}
+
+html[data-theme='dark'] .badge-success {
+  background-color: #1f3b28;
+  color: #b7f7cd;
+}
+
+html[data-theme='dark'] .badge-danger {
+  background-color: #3b1f1f;
+  color: #ffb4bc;
+}
+
+html[data-theme='dark'] .badge-warning {
+  background-color: #3a2f13;
+  color: #ffe29a;
+}
+
+html[data-theme='dark'] .badge-info {
+  background-color: #17303a;
+  color: #b6ecff;
 }
