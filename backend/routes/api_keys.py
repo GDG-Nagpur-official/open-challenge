@@ -5,11 +5,13 @@ from models import APIKey
 from utils import serialize_doc, serialize_docs, generate_api_key
 from bson import ObjectId
 from datetime import datetime
+from Limiter import limiter
 
 api_keys_bp = Blueprint('api_keys', __name__, url_prefix='/api/keys')
 
 @api_keys_bp.route('/', methods=['GET'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def get_api_keys():
     user_id = get_jwt_identity()
     
@@ -19,6 +21,7 @@ def get_api_keys():
 
 @api_keys_bp.route('/', methods=['POST'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def create_api_key():
     user_id = get_jwt_identity()
     data = request.get_json()
@@ -39,6 +42,7 @@ def create_api_key():
 
 @api_keys_bp.route('/<key_id>', methods=['DELETE'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def delete_api_key(key_id):
     user_id = get_jwt_identity()
     
@@ -56,6 +60,7 @@ def delete_api_key(key_id):
 
 @api_keys_bp.route('/<key_id>/toggle', methods=['PATCH'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def toggle_api_key(key_id):
     user_id = get_jwt_identity()
     

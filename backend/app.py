@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from database import init_indexes
+from Limiter import limiter
 
 from routes.auth import auth_bp
 from routes.apis import apis_bp
@@ -15,6 +16,7 @@ app.config.from_object(Config)
 
 CORS(app)
 jwt = JWTManager(app)
+limiter.init_app(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(apis_bp)
@@ -40,7 +42,9 @@ def index():
         }
     }), 200
 
+
 @app.route('/health')
+@limiter.limit("5 per minute")
 def health():
     return jsonify({'status': 'healthy'}), 200
 
@@ -51,6 +55,15 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Too many requests",
+        "retry_after": e.retry_after
+    }), 429
+#  Global handler for rate limit exceeded errors.
+#  Send HTTP 429 Too Many Requests
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=Config.PORT, debug=(Config.FLASK_ENV == 'development'))

@@ -5,10 +5,13 @@ from models import User
 from utils import serialize_doc
 from bson import ObjectId
 import validators
+from Limiter import limiter
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
+
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("100 per minute")
 def register():
     data = request.get_json()
     
@@ -43,7 +46,9 @@ def register():
         'refresh_token': refresh_token
     }), 201
 
+
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit("100 per minute") # 100 requests per minute per client (IP-based)
 def login():
     data = request.get_json()
     
@@ -70,6 +75,7 @@ def login():
 
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
+@limiter.limit("50 per hour")  
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
@@ -80,6 +86,7 @@ def refresh():
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def get_current_user():
     user_id = get_jwt_identity()
     user = users_collection.find_one({'_id': ObjectId(user_id)})
