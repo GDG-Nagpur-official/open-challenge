@@ -61,3 +61,5 @@ class Log:
             'error': error,
             'timestamp': datetime.utcnow()
         }
+
+

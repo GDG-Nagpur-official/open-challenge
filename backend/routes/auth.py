@@ -1,13 +1,29 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    jwt_required,
+    get_jwt_identity
+)
 from database import users_collection
 from models import User
-from utils import serialize_doc
+
+
+from utils.util import serialize_doc, hash_password
+import secrets
+
+from utils.email_service import send_reset_email
+
 from bson import ObjectId
+from datetime import datetime, timedelta
 import validators
+import secrets
+
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
+
+# ---------------- REGISTER ----------------
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -43,6 +59,8 @@ def register():
         'refresh_token': refresh_token
     }), 201
 
+
+# ---------------- LOGIN ----------------
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -68,6 +86,67 @@ def login():
         'refresh_token': refresh_token
     }), 200
 
+
+# ---------------- FORGOT PASSWORD ----------------
+@auth_bp.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json()
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"message": "Email required"}), 400
+
+    user = users_collection.find_one({"email": email})
+
+    if not user:
+        return jsonify({"message": "If email exists, reset link sent"}), 200
+
+    token = secrets.token_urlsafe(32)
+    expiry = datetime.utcnow() + timedelta(hours=1)
+
+    users_collection.update_one(
+        {"_id": user["_id"]},
+        {"$set": {
+            "reset_token": token,
+            "reset_token_expiry": expiry
+        }}
+    )
+
+    reset_link = f"http://localhost:3000/reset-password/{token}"
+
+    print("TOKEN STORED IN DB:", token)
+    send_reset_email(user["email"], reset_link)
+
+    return jsonify({"message": "Reset link sent"}), 200
+
+
+# ---------------- RESET PASSWORD ----------------
+@auth_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json()
+    token = data.get("token")
+    new_password = data.get("new_password")
+
+    print("TOKEN RECEIVED FROM FRONTEND:", token)
+
+    user = users_collection.find_one({"reset_token": token})
+
+    print("USER FOUND:", user)
+
+    if not user:
+        return jsonify({"message": "Invalid or expired reset link"}), 400
+
+    users_collection.update_one(
+        {"_id": user["_id"]},
+        {
+            "$set": {"password": hash_password(new_password)},
+            "$unset": {"reset_token": "", "reset_token_expiry": ""}
+        }
+    )
+
+    return jsonify({"message": "Password updated successfully"}), 200
+
+# ---------------- REFRESH TOKEN ----------------
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
@@ -78,6 +157,8 @@ def refresh():
         'access_token': access_token
     }), 200
 
+
+# ---------------- CURRENT USER ----------------
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():

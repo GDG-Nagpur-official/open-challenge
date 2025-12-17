@@ -12,6 +12,9 @@ import Analytics from './components/Analytics';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 
+import ForgotPassword from './components/ForgetPassword';
+import ResetPassword from './components/ResetPassword'; 
+
 function App() {
   return (
     <AuthProvider>
@@ -22,6 +25,10 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+
             <Route
               path="/dashboard"
               element={

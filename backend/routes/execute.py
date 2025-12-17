@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import apis_collection, logs_collection
 from models import Log
-from utils import api_key_required
+from utils.util import api_key_required
 from bson import ObjectId
 import requests
 import time
