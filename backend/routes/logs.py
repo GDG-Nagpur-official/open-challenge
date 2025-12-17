@@ -3,11 +3,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from database import logs_collection
 from utils import serialize_docs
 from bson import ObjectId
+from Limiter import limiter
 
 logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
 
 @logs_bp.route('/', methods=['GET'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def get_logs():
     user_id = get_jwt_identity()
     
@@ -37,6 +39,7 @@ def get_logs():
 
 @logs_bp.route('/stats', methods=['GET'])
 @jwt_required()
+@limiter.limit("100 per hour")
 def get_stats():
     user_id = get_jwt_identity()
     

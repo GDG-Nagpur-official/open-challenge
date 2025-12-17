@@ -5,11 +5,13 @@ from utils import api_key_required
 from bson import ObjectId
 import requests
 import time
+from Limiter import limiter
 
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
 @execute_bp.route('/<api_id>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 @api_key_required
+@limiter.limit("100 per minute")
 def execute_api(api_id):
     try:
         api = apis_collection.find_one({'_id': ObjectId(api_id)})

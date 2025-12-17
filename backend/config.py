@@ -10,5 +10,5 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/api_management')
-    PORT = int(os.getenv('PORT', 5000))
+    PORT = int(os.getenv('PORT', 5001))
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
