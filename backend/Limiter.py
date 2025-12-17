@@ -2,6 +2,9 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 
+
+# Uses Flask-Limiter to protect APIs
+
 def rate_limit_key():
     """
     • Authenticated users → user_id

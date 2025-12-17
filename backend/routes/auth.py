@@ -48,7 +48,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
-@limiter.limit("100 per minute")
+@limiter.limit("100 per minute") # 100 requests per minute per client (IP-based)
 def login():
     data = request.get_json()
     
@@ -75,7 +75,7 @@ def login():
 
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
-@limiter.limit("50 per hour")
+@limiter.limit("50 per hour")  
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)

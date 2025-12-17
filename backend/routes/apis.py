@@ -11,9 +11,9 @@ apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 
 @apis_bp.route('/', methods=['GET'])
 @jwt_required()
-@limiter.limit("100 per hour")
+@limiter.limit("100 per hour")  # 100 requests per hour per user
 def get_apis():
-    user_id = get_jwt_identity()
+     user_id = get_jwt_identity()                 
     
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))

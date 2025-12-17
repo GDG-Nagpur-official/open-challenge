@@ -62,7 +62,8 @@ def ratelimit_handler(e):
         "error": "Too many requests",
         "retry_after": e.retry_after
     }), 429
-
+#  Global handler for rate limit exceeded errors.
+#  Send HTTP 429 Too Many Requests
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=Config.PORT, debug=(Config.FLASK_ENV == 'development'))
