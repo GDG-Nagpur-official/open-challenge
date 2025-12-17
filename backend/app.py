@@ -9,6 +9,9 @@ from routes.apis import apis_bp
 from routes.api_keys import api_keys_bp
 from routes.logs import logs_bp
 from routes.execute import execute_bp
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,7 +19,9 @@ app.config.from_object(Config)
 CORS(app)
 jwt = JWTManager(app)
 
-app.register_blueprint(auth_bp)
+app.register_blueprint(auth_bp, url_prefix="/api/auth")
+
+# app.register_blueprint(auth_bp)
 app.register_blueprint(apis_bp)
 app.register_blueprint(api_keys_bp)
 app.register_blueprint(logs_bp)

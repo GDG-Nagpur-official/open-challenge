@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from database import api_keys_collection
 from models import APIKey
-from utils import serialize_doc, serialize_docs, generate_api_key
+from utils.util import serialize_doc, serialize_docs, generate_api_key
 from bson import ObjectId
 from datetime import datetime
 
