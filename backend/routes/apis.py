@@ -5,7 +5,9 @@ from models import API
 from utils import serialize_doc, serialize_docs
 from bson import ObjectId
 from datetime import datetime
+import validators
 
+# FIX: Add strict_slashes=False here
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 
 @apis_bp.route('/', methods=['GET'])
@@ -27,7 +29,7 @@ def get_apis():
         'pages': (total + limit - 1) // limit
     }), 200
 
-@apis_bp.route('/<api_id>', methods=['GET'])
+@apis_bp.route('/<api_id>/', methods=['GET'], strict_slashes=False)
 @jwt_required()
 def get_api(api_id):
     user_id = get_jwt_identity()
@@ -42,21 +44,25 @@ def get_api(api_id):
     
     return jsonify({'api': serialize_doc(api)}), 200
 
-@apis_bp.route('/', methods=['POST'])
+@apis_bp.route('/', methods=['POST'], strict_slashes=False)
 @jwt_required()
 def create_api():
     user_id = get_jwt_identity()
     data = request.get_json()
     
     name = data.get('name')
-    description = data.get('description', '')
     endpoint = data.get('endpoint')
     method = data.get('method', 'GET')
+
+    # Basic Validation
+    if not name or len(name.strip()) < 2:
+        return jsonify({'error': 'Name is required'}), 400
+    if not endpoint or not validators.url(endpoint):
+        return jsonify({'error': 'Valid endpoint URL is required'}), 400
+    
+    description = data.get('description', '')
     headers = data.get('headers', {})
     params = data.get('params', {})
-    
-    if not all([name, endpoint]):
-        return jsonify({'error': 'Name and endpoint are required'}), 400
     
     if method not in ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']:
         return jsonify({'error': 'Invalid HTTP method'}), 400
@@ -71,7 +77,7 @@ def create_api():
         'api': serialize_doc(api_data)
     }), 201
 
-@apis_bp.route('/<api_id>', methods=['PUT'])
+@apis_bp.route('/<api_id>/', methods=['PUT'], strict_slashes=False)
 @jwt_required()
 def update_api(api_id):
     user_id = get_jwt_identity()
@@ -114,14 +120,18 @@ def update_api(api_id):
         'api': serialize_doc(updated_api)
     }), 200
 
-@apis_bp.route('/<api_id>', methods=['DELETE'])
+# FIX: Added strict_slashes=False to DELETE route
+@apis_bp.route('/<api_id>/', methods=['DELETE'], strict_slashes=False)
 @jwt_required()
 def delete_api(api_id):
     user_id = get_jwt_identity()
     
     try:
+        if not ObjectId.is_valid(api_id):
+             return jsonify({'error': 'Invalid API ID format'}), 400
+
         api = apis_collection.find_one({'_id': ObjectId(api_id), 'user_id': ObjectId(user_id)})
-    except:
+    except Exception:
         return jsonify({'error': 'Invalid API ID'}), 400
     
     if not api:
