@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
@@ -13,11 +13,30 @@ import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
+    const [darkMode, setDarkMode] = useState(false);
+
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
+        <div
+  className="App"
+  style={{
+    backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
+    color: darkMode ? '#ffffff' : '#000000',
+    minHeight: '100vh',
+  }}
+>
           <Navbar />
+    <button
+  onClick={() => setDarkMode(!darkMode)}
+  style={{
+    padding: '5px 10px',
+    margin: '10px',
+    cursor: 'pointer',
+  }}
+>
+  {darkMode ? '🌙 Dark Mode' : '☀ Light Mode'}
+</button>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/login" element={<Login />} />
