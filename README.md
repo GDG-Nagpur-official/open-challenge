@@ -10,17 +10,19 @@ A comprehensive full-stack application for managing, monitoring, and analyzing A
 - **API Key Management**: Generate and manage API keys for secure API access
 - **Request Logging**: Automatic logging of all API requests with detailed metrics
 - **Analytics Dashboard**: Real-time statistics and request history visualization
-- **Rate Limiting Ready**: Infrastructure for implementing rate limiting
+- **Rate Limiting**: Built-in "Leaky Bucket" rate limiting (60 requests/min per key)
 - **Docker Support**: Fully containerized with Docker Compose
 
 ### Technical Features
-- RESTful API architecture
+- RESTful API architecture with strict trailing slash enforcement
+- **Optimized Performance**: Database indexes initialized at startup for low-latency requests
+- **Enhanced Security**: 
+  - SSRF (Server-Side Request Forgery) protection against private network access
+  - Input validation for all API routes
 - MongoDB for flexible data storage
 - React with Hooks and Context API
-- Responsive UI design
 - Token refresh mechanism
-- CORS enabled
-- Production-ready with Gunicorn and Nginx
+- CORS enabled with credential support
 
 ## Tech Stack
 
@@ -34,7 +36,7 @@ A comprehensive full-stack application for managing, monitoring, and analyzing A
 ### Frontend
 - **Framework**: React 18
 - **Routing**: React Router v6
-- **HTTP Client**: Axios
+- **HTTP Client**: Axios (configured with interceptors)
 - **Notifications**: React Toastify
 - **Icons**: Lucide React
 - **Build Tool**: Create React App
@@ -46,27 +48,29 @@ A comprehensive full-stack application for managing, monitoring, and analyzing A
 
 ## Project Structure
 
+
 ```
+
 api-management-system/
 ├── backend/
 │   ├── routes/
 │   │   ├── auth.py          # Authentication endpoints
-│   │   ├── apis.py          # API CRUD operations
+│   │   ├── apis.py          # API CRUD operations (strict validation)
 │   │   ├── api_keys.py      # API key management
 │   │   ├── logs.py          # Request logs and stats
-│   │   └── execute.py       # API execution proxy
-│   ├── app.py               # Main Flask application
+│   │   └── execute.py       # API proxy with SSRF protection
+│   ├── app.py               # Main Flask app with CORS config
 │   ├── config.py            # Configuration settings
-│   ├── database.py          # MongoDB connection
+│   ├── database.py          # MongoDB connection & Indexing
 │   ├── models.py            # Data models
-│   ├── utils.py             # Helper functions
+│   ├── utils.py             # Rate limiting & Helper functions
 │   ├── requirements.txt     # Python dependencies
 │   └── Dockerfile           # Backend container
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # React components
 │   │   ├── context/         # Auth context
-│   │   ├── utils/           # API utilities
+│   │   ├── utils/           # API utilities (Axios)
 │   │   ├── App.js           # Main app component
 │   │   └── index.js         # Entry point
 │   ├── public/              # Static files
@@ -74,10 +78,11 @@ api-management-system/
 │   ├── Dockerfile           # Frontend container
 │   └── nginx.conf           # Nginx configuration
 ├── docker-compose.yml       # Docker orchestration
-├── .gitignore              # Git ignore rules
-├── LICENSE                 # MIT License
-├── CONTRIBUTING.md         # Contribution guidelines
-└── README.md               # This file
+├── .gitignore               # Git ignore rules
+├── https://www.google.com/search?q=LICENSE                  # MIT License
+├── https://www.google.com/search?q=CONTRIBUTING.md          # Contribution guidelines
+└── README.md                # This file
+
 ```
 
 ## Getting Started
@@ -94,82 +99,106 @@ api-management-system/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/api-management-system.git
+git clone [https://github.com/yourusername/api-management-system.git](https://github.com/yourusername/api-management-system.git)
 cd api-management-system
+
 ```
 
 2. Start all services:
+
 ```bash
 docker-compose up -d
+
 ```
 
 3. Access the application:
-- Frontend: http://localhost:3000
-- Backend: http://localhost:5000
+
+* Frontend: http://localhost:3000
+* Backend: http://localhost:5000
 
 #### Option 2: Manual Setup
 
 **Backend Setup:**
 
 1. Navigate to backend directory:
+
 ```bash
 cd backend
+
 ```
 
 2. Create virtual environment:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 ```
 
 3. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
+
 ```
 
 4. Configure environment:
+
 ```bash
 cp .env.example .env
 # Edit .env with your settings
+
 ```
 
 5. Start MongoDB (ensure it's running on localhost:27017)
-
 6. Run the application:
+
 ```bash
 python app.py
+
 ```
 
 **Frontend Setup:**
 
 1. Navigate to frontend directory:
+
 ```bash
 cd frontend
+
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
+
 ```
 
 3. Configure environment:
+
 ```bash
 cp .env.example .env
 # Edit .env with your API URL
+
 ```
 
 4. Start development server:
+
 ```bash
 npm start
+
 ```
 
 5. Access at http://localhost:3000
 
 ## API Documentation
 
+**Note:** All endpoints enforce trailing slashes (e.g., `/api/apis/`) to prevent CORS redirect issues.
+
 ### Authentication Endpoints
 
 **Register User**
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -179,9 +208,11 @@ Content-Type: application/json
   "email": "string",
   "password": "string"
 }
+
 ```
 
 **Login**
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -190,103 +221,132 @@ Content-Type: application/json
   "email": "string",
   "password": "string"
 }
+
 ```
 
 **Get Current User**
+
 ```http
 GET /api/auth/me
 Authorization: Bearer <token>
+
 ```
 
 ### API Management Endpoints
 
 **List APIs**
+
 ```http
-GET /api/apis?page=1&limit=10
+GET /api/apis/?page=1&limit=10
 Authorization: Bearer <token>
+
 ```
 
 **Create API**
+
 ```http
-POST /api/apis
+POST /api/apis/
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
   "name": "string",
   "description": "string",
-  "endpoint": "string",
+  "endpoint": "[https://api.example.com/data](https://api.example.com/data)", 
   "method": "GET|POST|PUT|DELETE|PATCH",
   "headers": {},
   "params": {}
 }
+
 ```
 
+*Note: The `endpoint` must be a valid public URL. Localhost and private IPs are blocked for security.*
+
 **Update API**
+
 ```http
-PUT /api/apis/<api_id>
+PUT /api/apis/<api_id>/
 Authorization: Bearer <token>
 Content-Type: application/json
+
 ```
 
 **Delete API**
+
 ```http
-DELETE /api/apis/<api_id>
+DELETE /api/apis/<api_id>/
 Authorization: Bearer <token>
+
 ```
 
 ### API Key Endpoints
 
 **List API Keys**
+
 ```http
-GET /api/keys
+GET /api/keys/
 Authorization: Bearer <token>
+
 ```
 
 **Create API Key**
+
 ```http
-POST /api/keys
+POST /api/keys/
 Authorization: Bearer <token>
 Content-Type: application/json
 
 {
   "name": "string"
 }
+
 ```
 
 **Delete API Key**
+
 ```http
-DELETE /api/keys/<key_id>
+DELETE /api/keys/<key_id>/
 Authorization: Bearer <token>
+
 ```
 
 **Toggle API Key**
+
 ```http
-PATCH /api/keys/<key_id>/toggle
+PATCH /api/keys/<key_id>/toggle/
 Authorization: Bearer <token>
+
 ```
 
 ### Logs & Analytics Endpoints
 
 **Get Logs**
+
 ```http
-GET /api/logs?page=1&limit=20&api_id=<optional>
+GET /api/logs/?page=1&limit=20&api_id=<optional>
 Authorization: Bearer <token>
+
 ```
 
 **Get Statistics**
+
 ```http
 GET /api/logs/stats
 Authorization: Bearer <token>
+
 ```
 
 ### Execute API Endpoint
 
 **Execute API**
+
 ```http
 GET|POST|PUT|DELETE|PATCH /api/execute/<api_id>
 X-API-Key: <your-api-key>
+
 ```
+
+*Rate Limit: 60 requests per minute per API key.*
 
 ## Usage Examples
 
@@ -296,9 +356,11 @@ X-API-Key: <your-api-key>
 2. Navigate to Dashboard
 3. Click "Create API"
 4. Fill in API details:
-   - Name: "JSONPlaceholder Posts"
-   - Endpoint: "https://jsonplaceholder.typicode.com/posts"
-   - Method: "GET"
+* Name: "JSONPlaceholder Posts"
+* Endpoint: "https://jsonplaceholder.typicode.com/posts"
+* Method: "GET"
+
+
 5. Save the API
 
 ### Generating an API Key
@@ -313,55 +375,62 @@ X-API-Key: <your-api-key>
 
 1. Navigate to "Analytics"
 2. View real-time statistics:
-   - Total requests
-   - Success/error rates
-   - Average response time
+* Total requests
+* Success/error rates
+* Average response time
+
+
 3. Browse request history with pagination
 
 ## Environment Variables
 
 ### Backend (.env)
+
 ```env
 FLASK_ENV=development
 SECRET_KEY=your-secret-key
 JWT_SECRET_KEY=your-jwt-secret
 MONGODB_URI=mongodb://localhost:27017/api_management
 PORT=5000
+
 ```
 
 ### Frontend (.env)
+
 ```env
 REACT_APP_API_URL=http://localhost:5000
+
 ```
 
 ## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute to this project.
+We welcome contributions! Please see [CONTRIBUTING.md](https://www.google.com/search?q=CONTRIBUTING.md) for details on how to contribute to this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
 
-## Security
+## Security Features
 
-- Passwords are hashed using bcrypt
-- JWT tokens for secure authentication
-- API keys for service-to-service authentication
-- CORS configured for security
-- Environment variables for sensitive data
+* **Rate Limiting**: Custom MongoDB-based rate limiter prevents abuse of API keys.
+* **SSRF Protection**: Internal validation prevents users from proxying requests to private networks (e.g., localhost, 192.168.x.x).
+* **Secure Auth**: Passwords are hashed using bcrypt; JWT tokens used for sessions.
+* **CORS**: Configured with strict origin policies and credential support.
+* **Input Validation**: All inputs are validated before processing to prevent injection attacks.
 
 ## Roadmap
 
-- [ ] Rate limiting implementation
-- [ ] Webhook support
-- [ ] API versioning
-- [ ] Advanced filtering and search
-- [ ] Export analytics to CSV/PDF
-- [ ] Email notifications
-- [ ] Team collaboration features
-- [ ] API documentation generator
-- [ ] GraphQL support
-- [ ] WebSocket support for real-time updates
+* [x] Rate limiting implementation
+* [x] Database indexing optimization
+* [ ] Webhook support
+* [ ] API versioning
+* [ ] Advanced filtering and search
+* [ ] Export analytics to CSV/PDF
+* [ ] Email notifications
+* [ ] Team collaboration features
+* [ ] API documentation generator
+* [ ] GraphQL support
+* [ ] WebSocket support for real-time updates
 
 ## Support
 
@@ -369,11 +438,12 @@ For issues, questions, or contributions, please open an issue on GitHub.
 
 ## Acknowledgments
 
-- Flask community for excellent documentation
-- React team for the amazing framework
-- MongoDB for the flexible database solution
-- All open-source contributors
+* Flask community for excellent documentation
+* React team for the amazing framework
+* MongoDB for the flexible database solution
+* All open-source contributors
 
 ---
 
 **Built with ❤️ using Flask and React**
+

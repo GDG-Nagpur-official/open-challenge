@@ -13,7 +13,9 @@ from routes.execute import execute_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 
-CORS(app)
+# FIX: Enable Credentials and wildcards for API routes
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
 jwt = JWTManager(app)
 
 app.register_blueprint(auth_bp)
@@ -22,9 +24,12 @@ app.register_blueprint(api_keys_bp)
 app.register_blueprint(logs_bp)
 app.register_blueprint(execute_bp)
 
-@app.before_request
-def initialize_db():
-    init_indexes()
+with app.app_context():
+    try:
+        init_indexes()
+        print("Database indexes initialized successfully.")
+    except Exception as e:
+        print(f"Error initializing database indexes: {e}")
 
 @app.route('/')
 def index():

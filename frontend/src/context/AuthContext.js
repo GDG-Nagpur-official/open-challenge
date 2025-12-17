@@ -8,43 +8,39 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('access_token');
-
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+    checkAuth();
   }, []);
 
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await authAPI.getCurrentUser();
+        setUser(response.data.user);
+      } catch (error) {
+        localStorage.removeItem('token');
+        setUser(null);
+      }
+    }
+    setLoading(false);
+  };
+
   const login = async (email, password) => {
-    const response = await authAPI.login({ email, password });
-    const { user, access_token, refresh_token } = response.data;
-
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('refresh_token', refresh_token);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    setUser(user);
-    return response.data;
+    const response = await authAPI.login(email, password);
+    localStorage.setItem('token', response.data.access_token);
+    setUser(response.data.user);
+    return response;
   };
 
   const register = async (username, email, password) => {
-    const response = await authAPI.register({ username, email, password });
-    const { user, access_token, refresh_token } = response.data;
-
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('refresh_token', refresh_token);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    setUser(user);
-    return response.data;
+    const response = await authAPI.register(username, email, password);
+    localStorage.setItem('token', response.data.access_token);
+    setUser(response.data.user);
+    return response;
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('token');
     setUser(null);
   };
 
@@ -55,10 +51,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
