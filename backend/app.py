@@ -9,6 +9,8 @@ from routes.apis import apis_bp
 from routes.api_keys import api_keys_bp
 from routes.logs import logs_bp
 from routes.execute import execute_bp
+from database import check_db_connection
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -40,9 +42,22 @@ def index():
         }
     }), 200
 
-@app.route('/health')
+
+@app.route("/health", methods=["GET"])
 def health():
-    return jsonify({'status': 'healthy'}), 200
+    db_connected = check_db_connection()
+
+    if db_connected:
+        return {
+            "status": "ok",
+            "database": "connected"
+        }, 200
+
+    return {
+        "status": "degraded",
+        "database": "disconnected"
+    }, 503
+
 
 @app.errorhandler(404)
 def not_found(error):

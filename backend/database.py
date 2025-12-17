@@ -17,3 +17,12 @@ def init_indexes():
     apis_collection.create_index('user_id')
     logs_collection.create_index([('timestamp', -1)])
     logs_collection.create_index('api_id')
+
+from pymongo.errors import PyMongoError
+
+def check_db_connection():
+    try:
+        client.admin.command("ping")
+        return True
+    except PyMongoError:
+        return False
