@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile - API Management System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav>
+        <a href="1.hmtl">Home</a>
+        <a href="profile.html">Profile</a>
+        <a href="settings.html">Settings</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <h2>Your Profile</h2>
+
+      <section class="profile-card" id="profileCard">
+        <img id="avatar" alt="avatar" class="avatar" src="" />
+        <div class="profile-info">
+          <p><strong>Name:</strong> <span id="displayName"></span></p>
+          <p><strong>Email:</strong> <span id="displayEmail"></span></p>
+          <p><strong>Bio:</strong> <span id="displayBio"></span></p>
+          <button id="editBtn">Edit Profile</button>
+        </div>
+      </section>
+
+      <form id="editForm" class="hidden">
+        <label>
+          Name
+          <input id="nameInput" type="text" />
+        </label>
+        <label>
+          Email
+          <input id="emailInput" type="email" />
+        </label>
+        <label>
+          Bio
+          <textarea id="bioInput" rows="3"></textarea>
+        </label>
+        <label>
+          Avatar URL
+          <input id="avatarInput" type="url" />
+        </label>
+        <div class="form-actions">
+          <button type="button" id="saveProfile">Save</button>
+          <button type="button" id="cancelEdit">Cancel</button>
+        </div>
+      </form>
+
+    </main>
+  </body>
+</html>

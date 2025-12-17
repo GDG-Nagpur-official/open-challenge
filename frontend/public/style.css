@@ -1,0 +1,112 @@
+:root{
+  --bg:#fff;
+  --text:#111;
+  --card:#f7f7f7;
+}
+body{font-family:Segoe UI, Roboto, Arial; margin:0; background:var(--bg); color:var(--text);}
+.topbar{background:#222;color:#fff;padding:10px 16px;}
+.topbar nav a{color:#ddd;margin-right:12px;text-decoration:none;}
+.topbar nav a:hover{color:#fff;}
+.container{padding:20px;max-width:900px;margin:0 auto;}
+.profile-card{display:flex;gap:16px;align-items:center;background:var(--card);padding:16px;border-radius:6px}
+.avatar{width:80px;height:80px;border-radius:8px;object-fit:cover;background:#e0e0e0}
+.profile-info p{margin:4px 0}
+.hidden{display:none}
+
+form label{display:block;margin:12px 0}
+input[type="text"],input[type="email"],input[type="url"],textarea,select,input[type="number"]{width:100%;padding:8px;margin-top:6px;box-sizing:border-box;border:1px solid #ddd;border-radius:4px;}
+input[type="text"]:focus,input[type="email"]:focus,input[type="url"]:focus,textarea:focus,select:focus,input[type="number"]:focus{outline:none;border-color:#222;box-shadow:0 0 0 2px rgba(34,34,34,0.1)}
+
+input[type="checkbox"]{margin-right:6px;cursor:pointer;}
+label{cursor:pointer;}
+
+.form-actions{margin-top:16px;display:flex;gap:8px;align-items:center;}
+button{padding:10px 16px;background:#222;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
+button:hover{background:#333;}
+button:disabled{background:#999;cursor:not-allowed;}
+.muted{margin-left:12px;color:#666;font-size:13px;}
+
+.settings-section{border:1px solid #ddd;border-radius:4px;padding:12px;margin:16px 0;}
+.settings-section legend{padding:0 8px;font-weight:600;color:#222;}
+.settings-section label{margin:10px 0}
+
+/* dark theme */
+body.dark{--bg:#121212;--text:#eaeaea;--card:#1d1d1d}
+body.dark input[type="text"],body.dark input[type="email"],body.dark input[type="url"],body.dark textarea,body.dark select,body.dark input[type="number"]{background:#2a2a2a;color:#eaeaea;border-color:#444;}
+body.dark .settings-section{border-color:#444;}
+body.dark button{background:#444;}
+body.dark button:hover{background:#555;}:root{
+  --bg:#fff;
+  --text:#111;
+  --card:#f7f7f7;
+}
+body{font-family:Segoe UI, Roboto, Arial; margin:0; background:var(--bg); color:var(--text);}
+.topbar{background:#222;color:#fff;padding:10px 16px;}
+.topbar nav a{color:#ddd;margin-right:12px;text-decoration:none;}
+.topbar nav a:hover{color:#fff;}
+.container{padding:20px;max-width:900px;margin:0 auto;}
+.profile-card{display:flex;gap:16px;align-items:center;background:var(--card);padding:16px;border-radius:6px}
+.avatar{width:80px;height:80px;border-radius:8px;object-fit:cover;background:#e0e0e0}
+.profile-info p{margin:4px 0}
+.hidden{display:none}
+
+form label{display:block;margin:12px 0}
+input[type="text"],input[type="email"],input[type="url"],textarea,select,input[type="number"]{width:100%;padding:8px;margin-top:6px;box-sizing:border-box;border:1px solid #ddd;border-radius:4px;}
+input[type="text"]:focus,input[type="email"]:focus,input[type="url"]:focus,textarea:focus,select:focus,input[type="number"]:focus{outline:none;border-color:#222;box-shadow:0 0 0 2px rgba(34,34,34,0.1)}
+
+input[type="checkbox"]{margin-right:6px;cursor:pointer;}
+label{cursor:pointer;}
+
+.form-actions{margin-top:16px;display:flex;gap:8px;align-items:center;}
+button{padding:10px 16px;background:#222;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
+button:hover{background:#333;}
+button:disabled{background:#999;cursor:not-allowed;}
+.muted{margin-left:12px;color:#666;font-size:13px;}
+
+.settings-section{border:1px solid #ddd;border-radius:4px;padding:12px;margin:16px 0;}
+.settings-section legend{padding:0 8px;font-weight:600;color:#222;}
+.settings-section label{margin:10px 0}
+
+/* dark theme */
+body.dark{--bg:#121212;--text:#eaeaea;--card:#1d1d1d}
+body.dark input[type="text"],body.dark input[type="email"],body.dark input[type="url"],body.dark textarea,body.dark select,body.dark input[type="number"]{background:#2a2a2a;color:#eaeaea;border-color:#444;}
+body.dark .settings-section{border-color:#444;}
+body.dark button{background:#444;}
+body.dark button:hover{background:#555;}:root{
+  --bg:#fff;
+  --text:#111;
+  --card:#f7f7f7;
+}
+body{font-family:Segoe UI, Roboto, Arial; margin:0; background:var(--bg); color:var(--text);}
+.topbar{background:#222;color:#fff;padding:10px 16px;}
+.topbar nav a{color:#ddd;margin-right:12px;text-decoration:none;}
+.topbar nav a:hover{color:#fff;}
+.container{padding:20px;max-width:900px;margin:0 auto;}
+.profile-card{display:flex;gap:16px;align-items:center;background:var(--card);padding:16px;border-radius:6px}
+.avatar{width:80px;height:80px;border-radius:8px;object-fit:cover;background:#e0e0e0}
+.profile-info p{margin:4px 0}
+.hidden{display:none}
+
+form label{display:block;margin:12px 0}
+input[type="text"],input[type="email"],input[type="url"],textarea,select,input[type="number"]{width:100%;padding:8px;margin-top:6px;box-sizing:border-box;border:1px solid #ddd;border-radius:4px;}
+input[type="text"]:focus,input[type="email"]:focus,input[type="url"]:focus,textarea:focus,select:focus,input[type="number"]:focus{outline:none;border-color:#222;box-shadow:0 0 0 2px rgba(34,34,34,0.1)}
+
+input[type="checkbox"]{margin-right:6px;cursor:pointer;}
+label{cursor:pointer;}
+
+.form-actions{margin-top:16px;display:flex;gap:8px;align-items:center;}
+button{padding:10px 16px;background:#222;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
+button:hover{background:#333;}
+button:disabled{background:#999;cursor:not-allowed;}
+.muted{margin-left:12px;color:#666;font-size:13px;}
+
+.settings-section{border:1px solid #ddd;border-radius:4px;padding:12px;margin:16px 0;}
+.settings-section legend{padding:0 8px;font-weight:600;color:#222;}
+.settings-section label{margin:10px 0}
+
+/* dark theme */
+body.dark{--bg:#121212;--text:#eaeaea;--card:#1d1d1d}
+body.dark input[type="text"],body.dark input[type="email"],body.dark input[type="url"],body.dark textarea,body.dark select,body.dark input[type="number"]{background:#2a2a2a;color:#eaeaea;border-color:#444;}
+body.dark .settings-section{border-color:#444;}
+body.dark button{background:#444;}
+body.dark button:hover{background:#555;}
