@@ -37,7 +37,7 @@ const Analytics = () => {
 
   return (
     <div className="container">
-      <h1 style={{ marginBottom: '20px' }}>Analytics</h1>
+      <h1 style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>Analytics</h1>
 
       <div className="stats-grid">
         <div className="stat-card">
@@ -74,9 +74,9 @@ const Analytics = () => {
       </div>
 
       <div className="card">
-        <h2 style={{ marginBottom: '20px' }}>Recent Requests</h2>
+        <h2 style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>Recent Requests</h2>
         {logs.length === 0 ? (
-          <p>No logs found</p>
+          <p style={{ color: 'var(--text-secondary)' }}>No logs found</p>
         ) : (
           <>
             <table className="table">
@@ -121,7 +121,7 @@ const Analytics = () => {
                 >
                   Previous
                 </button>
-                <span style={{ padding: '10px' }}>Page {page} of {totalPages}</span>
+                <span style={{ padding: '10px', color: 'var(--text-primary)' }}>Page {page} of {totalPages}</span>
                 <button
                   className="btn btn-secondary"
                   onClick={() => setPage(page + 1)}

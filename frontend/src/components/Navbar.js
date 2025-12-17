@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
+import ThemeToggle from '../dark mode/ThemeToggle';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -32,20 +33,23 @@ const Navbar = () => {
             API Management
           </Link>
           {user && (
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Database size={18} />
-                APIs
-              </Link>
-              <Link to="/keys" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Key size={18} />
-                API Keys
-              </Link>
-              <Link to="/analytics" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <BarChart3 size={18} />
-                Analytics
-              </Link>
-            </div>
+            <>
+              <ThemeToggle />
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Database size={18} />
+                  APIs
+                </Link>
+                <Link to="/keys" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Key size={18} />
+                  API Keys
+                </Link>
+                <Link to="/analytics" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <BarChart3 size={18} />
+                  Analytics
+                </Link>
+              </div>
+            </>
           )}
         </div>
         {user && (

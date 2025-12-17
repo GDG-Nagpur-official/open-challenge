@@ -72,7 +72,7 @@ const APIKeys = () => {
   return (
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>API Keys</h1>
+        <h1 style={{ color: 'var(--text-primary)' }}>API Keys</h1>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
           <Plus size={18} style={{ marginRight: '5px' }} />
           Create API Key
@@ -102,10 +102,11 @@ const APIKeys = () => {
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <code style={{ 
-                        background: '#f5f5f5', 
+                        background: 'var(--bg-primary)', 
                         padding: '5px 10px', 
                         borderRadius: '4px',
-                        fontSize: '12px'
+                        fontSize: '12px',
+                        color: 'var(--text-primary)'
                       }}>
                         {key.key.substring(0, 20)}...
                       </code>

@@ -1,0 +1,93 @@
+.theme-toggle {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background: var(--toggle-bg);
+  border: 2px solid var(--toggle-border);
+  border-radius: 15px;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--toggle-shadow);
+}
+
+.theme-toggle:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--toggle-shadow);
+}
+
+.theme-toggle-slider {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: var(--toggle-slider-bg);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-slider.light {
+  left: 3px;
+  transform: translateX(0);
+}
+
+.theme-toggle-slider.dark {
+  left: calc(100% - 27px);
+  transform: translateX(0);
+}
+
+.theme-toggle-icon {
+  color: var(--toggle-icon-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-slider.light .theme-toggle-icon {
+  animation: rotateIn 0.3s ease;
+}
+
+.theme-toggle-slider.dark .theme-toggle-icon {
+  animation: rotateIn 0.3s ease;
+}
+
+@keyframes rotateIn {
+  from {
+    transform: rotate(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Light mode toggle styles */
+[data-theme='light'] .theme-toggle {
+  --toggle-bg: #ffffff;
+  --toggle-border: #e0e0e0;
+  --toggle-shadow: rgba(0, 123, 255, 0.1);
+  --toggle-slider-bg: #007bff;
+  --toggle-icon-color: #ffffff;
+}
+
+/* Dark mode toggle styles */
+[data-theme='dark'] .theme-toggle {
+  --toggle-bg: #2d2d2d;
+  --toggle-border: #404040;
+  --toggle-shadow: rgba(0, 123, 255, 0.2);
+  --toggle-slider-bg: #007bff;
+  --toggle-icon-color: #ffffff;
+}
+
