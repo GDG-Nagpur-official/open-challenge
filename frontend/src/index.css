@@ -229,3 +229,9 @@ code {
   cursor: pointer;
   color: #666;
 }
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
