@@ -73,7 +73,7 @@ const Dashboard = () => {
   return (
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>My APIs</h1>
+        <h1 style={{ color: 'var(--text-primary)' }}>My APIs</h1>
         <button className="btn btn-primary" onClick={handleCreate}>
           <Plus size={18} style={{ marginRight: '5px' }} />
           Create API
@@ -154,7 +154,7 @@ const Dashboard = () => {
               >
                 Previous
               </button>
-              <span style={{ padding: '10px' }}>Page {page} of {totalPages}</span>
+              <span style={{ padding: '10px', color: 'var(--text-primary)' }}>Page {page} of {totalPages}</span>
               <button
                 className="btn btn-secondary"
                 onClick={() => setPage(page + 1)}

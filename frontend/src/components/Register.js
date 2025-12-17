@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import ThemeToggle from '../dark mode/ThemeToggle';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -28,9 +29,23 @@ const Register = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      backgroundColor: 'var(--bg-primary)',
+      position: 'relative'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px'
+      }}>
+        <ThemeToggle />
+      </div>
       <div className="card" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Register</h2>
+        <h2 style={{ marginBottom: '20px', textAlign: 'center', color: 'var(--text-primary)' }}>Register</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Username</label>
@@ -67,8 +82,8 @@ const Register = () => {
             {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
-        <p style={{ marginTop: '20px', textAlign: 'center' }}>
-          Already have an account? <Link to="/login">Login</Link>
+        <p style={{ marginTop: '20px', textAlign: 'center', color: 'var(--text-primary)' }}>
+          Already have an account? <Link to="/login" style={{ color: 'var(--accent-color)' }}>Login</Link>
         </p>
       </div>
     </div>

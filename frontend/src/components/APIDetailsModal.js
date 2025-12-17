@@ -13,19 +13,19 @@ const APIDetailsModal = ({ api, onClose }) => {
         </div>
         <div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Name:</strong>
-            <p>{api.name}</p>
+            <strong style={{ color: 'var(--text-primary)' }}>Name:</strong>
+            <p style={{ color: 'var(--text-primary)' }}>{api.name}</p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Description:</strong>
-            <p>{api.description || 'No description'}</p>
+            <strong style={{ color: 'var(--text-primary)' }}>Description:</strong>
+            <p style={{ color: 'var(--text-primary)' }}>{api.description || 'No description'}</p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Endpoint:</strong>
-            <p style={{ wordBreak: 'break-all' }}>{api.endpoint}</p>
+            <strong style={{ color: 'var(--text-primary)' }}>Endpoint:</strong>
+            <p style={{ wordBreak: 'break-all', color: 'var(--text-primary)' }}>{api.endpoint}</p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Method:</strong>
+            <strong style={{ color: 'var(--text-primary)' }}>Method:</strong>
             <p>
               <span className={`badge badge-${api.method === 'GET' ? 'info' : api.method === 'POST' ? 'success' : 'warning'}`}>
                 {api.method}
@@ -33,7 +33,7 @@ const APIDetailsModal = ({ api, onClose }) => {
             </p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Status:</strong>
+            <strong style={{ color: 'var(--text-primary)' }}>Status:</strong>
             <p>
               <span className={`badge badge-${api.status === 'active' ? 'success' : 'danger'}`}>
                 {api.status}
@@ -41,12 +41,12 @@ const APIDetailsModal = ({ api, onClose }) => {
             </p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Created:</strong>
-            <p>{new Date(api.created_at).toLocaleString()}</p>
+            <strong style={{ color: 'var(--text-primary)' }}>Created:</strong>
+            <p style={{ color: 'var(--text-primary)' }}>{new Date(api.created_at).toLocaleString()}</p>
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <strong>Last Updated:</strong>
-            <p>{new Date(api.updated_at).toLocaleString()}</p>
+            <strong style={{ color: 'var(--text-primary)' }}>Last Updated:</strong>
+            <p style={{ color: 'var(--text-primary)' }}>{new Date(api.updated_at).toLocaleString()}</p>
           </div>
           <button className="btn btn-secondary" onClick={onClose} style={{ width: '100%' }}>
             Close

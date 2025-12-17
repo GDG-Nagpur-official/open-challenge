@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import ThemeToggle from '../dark mode/ThemeToggle';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -27,9 +28,23 @@ const Login = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      backgroundColor: 'var(--bg-primary)',
+      position: 'relative'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px'
+      }}>
+        <ThemeToggle />
+      </div>
       <div className="card" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 style={{ marginBottom: '20px', textAlign: 'center' }}>Login</h2>
+        <h2 style={{ marginBottom: '20px', textAlign: 'center', color: 'var(--text-primary)' }}>Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
@@ -55,8 +70,8 @@ const Login = () => {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        <p style={{ marginTop: '20px', textAlign: 'center' }}>
-          Don't have an account? <Link to="/register">Register</Link>
+        <p style={{ marginTop: '20px', textAlign: 'center', color: 'var(--text-primary)' }}>
+          Don't have an account? <Link to="/register" style={{ color: 'var(--accent-color)' }}>Register</Link>
         </p>
       </div>
     </div>
