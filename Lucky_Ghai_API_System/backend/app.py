@@ -1,4 +1,5 @@
-from flask import Flask, jsonify
+import logging
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
@@ -12,10 +13,10 @@ from routes.execute import execute_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
+logging.basicConfig(level=logging.INFO)
 
 CORS(app)
 jwt = JWTManager(app)
-
 app.register_blueprint(auth_bp)
 app.register_blueprint(apis_bp)
 app.register_blueprint(api_keys_bp)
@@ -23,8 +24,32 @@ app.register_blueprint(logs_bp)
 app.register_blueprint(execute_bp)
 
 @app.before_request
-def initialize_db():
-    init_indexes()
+def log_request_info():
+
+    app.logger.info(f"📝 Request: {request.method} {request.url}")
+    if request.is_json:
+        app.logger.info(f"📦 Body: {request.json}")
+
+
+    try:
+        init_indexes()
+    except Exception as e:
+        app.logger.warning(f"⚠️ Index init warning: {e}")
+
+@app.after_request
+def log_response_info(response):
+    app.logger.info(f"✅ Response Status: {response.status_code}")
+    return response
+
+@app.route('/api/developer', methods=['GET'])
+def developer_info():
+    return jsonify({
+        "developer": "Lucky Ghai",
+        "event": "GDG DevFest 2025",
+        "project": "API Management System",
+        "status": "Ready for Buildathon"
+    }), 200
+
 
 @app.route('/')
 def index():
@@ -36,7 +61,8 @@ def index():
             'apis': '/api/apis',
             'api_keys': '/api/keys',
             'logs': '/api/logs',
-            'execute': '/api/execute'
+            'execute': '/api/execute',
+            'developer': '/api/developer'
         }
     }), 200
 
