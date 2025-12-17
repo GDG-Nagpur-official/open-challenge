@@ -5,6 +5,9 @@ import { Plus, Trash2, Copy, Power } from 'lucide-react';
 
 const APIKeys = () => {
   const [keys, setKeys] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [keyName, setKeyName] = useState('');
@@ -64,12 +67,27 @@ const APIKeys = () => {
     navigator.clipboard.writeText(text);
     toast.success('API key copied to clipboard');
   };
+  const filteredKeys = keys.filter((key) => {
+  const matchesSearch = key.name
+    ?.toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  const matchesStatus =
+    statusFilter === "all" ||
+    (statusFilter === "active" && key.is_active) ||
+    (statusFilter === "inactive" && !key.is_active);
+
+  return matchesSearch && matchesStatus;
+});
 
   if (loading) {
+    
+
     return <div className="loading">Loading...</div>;
   }
 
   return (
+    
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1>API Keys</h1>
@@ -78,10 +96,29 @@ const APIKeys = () => {
           Create API Key
         </button>
       </div>
+      <div className="filter-bar">
+  <input
+    type="text"
+    placeholder="Search API Key..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
 
-      {keys.length === 0 ? (
+  <select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="active">Active</option>
+    <option value="inactive">Inactive</option>
+  </select>
+</div>
+
+      {filteredKeys.length === 0 ? (
+
         <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          <p>No API keys found. Create your first API key to get started!</p>
+          <p>No API keys match your search or filter.</p>
+
         </div>
       ) : (
         <div className="card">
@@ -96,7 +133,8 @@ const APIKeys = () => {
               </tr>
             </thead>
             <tbody>
-              {keys.map((key) => (
+              {filteredKeys.map((key) => (
+
                 <tr key={key._id}>
                   <td>{key.name}</td>
                   <td>
