@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
+import DarkModeToggle from '../components/DarkModeToggle';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -50,6 +51,7 @@ const Navbar = () => {
         </div>
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <DarkModeToggle />
             <span>{user.username}</span>
             <button
               onClick={handleLogout}
