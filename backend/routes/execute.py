@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
-from database import apis_collection, logs_collection
-from models import Log
-from utils import api_key_required
 from bson import ObjectId
 import requests
 import time
+
+from cache import invalidate_user_namespace
+from database import apis_collection, logs_collection
+from models import Log
+from utils import api_key_required
 
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
@@ -23,6 +25,7 @@ def execute_api(api_id):
         return jsonify({'error': 'API is not active'}), 403
     
     start_time = time.time()
+    user_id = str(api['user_id'])
     
     try:
         method = api['method']
@@ -46,7 +49,7 @@ def execute_api(api_id):
         
         log_data = Log.create(
             api_id=api_id,
-            user_id=str(api['user_id']),
+            user_id=user_id,
             method=method,
             endpoint=endpoint,
             status_code=response.status_code,
@@ -56,6 +59,7 @@ def execute_api(api_id):
         )
         
         logs_collection.insert_one(log_data)
+        invalidate_user_namespace(user_id, 'stats')
         
         return jsonify({
             'status_code': response.status_code,
@@ -68,7 +72,7 @@ def execute_api(api_id):
         
         log_data = Log.create(
             api_id=api_id,
-            user_id=str(api['user_id']),
+            user_id=user_id,
             method=api['method'],
             endpoint=api['endpoint'],
             status_code=408,
@@ -77,6 +81,7 @@ def execute_api(api_id):
         )
         
         logs_collection.insert_one(log_data)
+        invalidate_user_namespace(user_id, 'stats')
         
         return jsonify({'error': 'Request timeout'}), 408
         
@@ -85,7 +90,7 @@ def execute_api(api_id):
         
         log_data = Log.create(
             api_id=api_id,
-            user_id=str(api['user_id']),
+            user_id=user_id,
             method=api['method'],
             endpoint=api['endpoint'],
             status_code=500,
@@ -94,5 +99,6 @@ def execute_api(api_id):
         )
         
         logs_collection.insert_one(log_data)
+        invalidate_user_namespace(user_id, 'stats')
         
         return jsonify({'error': str(e)}), 500
