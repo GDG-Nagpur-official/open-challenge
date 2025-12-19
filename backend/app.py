@@ -1,6 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import Config
 from database import init_indexes
 
@@ -15,6 +17,15 @@ app.config.from_object(Config)
 
 CORS(app)
 jwt = JWTManager(app)
+
+# Initialize Rate Limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=[Config.RATELIMIT_DEFAULT],
+    storage_uri=Config.RATELIMIT_STORAGE_URL,
+    enabled=Config.RATELIMIT_ENABLED
+)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(apis_bp)
@@ -47,6 +58,10 @@ def health():
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Resource not found'}), 404
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({'error': 'Rate limit exceeded. Please try again later.', 'message': str(e.description)}), 429
 
 @app.errorhandler(500)
 def internal_error(error):
