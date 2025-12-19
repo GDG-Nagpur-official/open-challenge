@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson import ObjectId
+
+from cache import build_user_key, get_cached_json, set_cached_json
+from config import Config
 from database import logs_collection
 from utils import serialize_docs
-from bson import ObjectId
 
 logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
 
@@ -39,6 +42,10 @@ def get_logs():
 @jwt_required()
 def get_stats():
     user_id = get_jwt_identity()
+    cache_key = build_user_key(user_id, 'stats')
+    cached_stats = get_cached_json(cache_key)
+    if cached_stats:
+        return jsonify(cached_stats), 200
     
     total_requests = logs_collection.count_documents({'user_id': ObjectId(user_id)})
     
@@ -62,10 +69,12 @@ def get_stats():
     
     result = list(logs_collection.aggregate(pipeline))
     avg_response_time = result[0]['avg_response_time'] if result else 0
-    
-    return jsonify({
+    response_data = {
         'total_requests': total_requests,
         'success_requests': success_requests,
         'error_requests': error_requests,
         'avg_response_time': round(avg_response_time, 2)
-    }), 200
+    }
+    set_cached_json(cache_key, response_data, ttl=Config.CACHE_STATS_TTL)
+    
+    return jsonify(response_data), 200

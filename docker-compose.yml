@@ -1,6 +1,17 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: api_management_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - api_network
+
   mongodb:
     image: mongo:7.0
     container_name: api_management_mongodb
@@ -25,8 +36,12 @@ services:
     environment:
       - FLASK_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017/api_management
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_DEFAULT_TTL=300
     depends_on:
       - mongodb
+      - redis
     networks:
       - api_network
     volumes:
@@ -47,6 +62,7 @@ services:
 
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   api_network:

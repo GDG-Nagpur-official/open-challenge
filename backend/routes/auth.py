@@ -1,10 +1,18 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from bson import ObjectId
+import validators
+
+from cache import (
+    build_user_key,
+    get_cached_json,
+    invalidate_user_namespace,
+    set_cached_json,
+)
+from config import Config
 from database import users_collection
 from models import User
 from utils import serialize_doc
-from bson import ObjectId
-import validators
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -32,9 +40,11 @@ def register():
     result = users_collection.insert_one(user_data)
     
     user_data['_id'] = result.inserted_id
+    identity = str(result.inserted_id)
+    invalidate_user_namespace(identity, 'profile')
     
-    access_token = create_access_token(identity=str(result.inserted_id))
-    refresh_token = create_refresh_token(identity=str(result.inserted_id))
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
     
     return jsonify({
         'message': 'User registered successfully',
@@ -58,8 +68,10 @@ def login():
     if not user or not User.verify_password(user['password'], password):
         return jsonify({'error': 'Invalid email or password'}), 401
     
-    access_token = create_access_token(identity=str(user['_id']))
-    refresh_token = create_refresh_token(identity=str(user['_id']))
+    identity = str(user['_id'])
+    invalidate_user_namespace(identity, 'profile')
+    access_token = create_access_token(identity=identity)
+    refresh_token = create_refresh_token(identity=identity)
     
     return jsonify({
         'message': 'Login successful',
@@ -82,11 +94,18 @@ def refresh():
 @jwt_required()
 def get_current_user():
     user_id = get_jwt_identity()
+    cache_key = build_user_key(user_id, 'profile')
+    cached_user = get_cached_json(cache_key)
+    if cached_user:
+        return jsonify({'user': cached_user}), 200
     user = users_collection.find_one({'_id': ObjectId(user_id)})
     
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
+    serialized_user = serialize_doc(user)
+    set_cached_json(cache_key, serialized_user, ttl=Config.CACHE_PROFILE_TTL)
+    
     return jsonify({
-        'user': serialize_doc(user)
+        'user': serialized_user
     }), 200

@@ -1,10 +1,18 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson import ObjectId
+from datetime import datetime
+
+from cache import (
+    build_user_key,
+    get_cached_json,
+    invalidate_user_namespace,
+    set_cached_json,
+)
+from config import Config
 from database import apis_collection
 from models import API
 from utils import serialize_doc, serialize_docs
-from bson import ObjectId
-from datetime import datetime
 
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 
@@ -16,16 +24,22 @@ def get_apis():
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     skip = (page - 1) * limit
+    cache_key = build_user_key(user_id, 'apis', f'page={page}', f'limit={limit}')
+    cached_response = get_cached_json(cache_key)
+    if cached_response:
+        return jsonify(cached_response), 200
     
     apis = list(apis_collection.find({'user_id': ObjectId(user_id)}).skip(skip).limit(limit).sort('created_at', -1))
     total = apis_collection.count_documents({'user_id': ObjectId(user_id)})
-    
-    return jsonify({
+    response_data = {
         'apis': serialize_docs(apis),
         'total': total,
         'page': page,
         'pages': (total + limit - 1) // limit
-    }), 200
+    }
+
+    set_cached_json(cache_key, response_data, ttl=Config.CACHE_APIS_TTL)
+    return jsonify(response_data), 200
 
 @apis_bp.route('/<api_id>', methods=['GET'])
 @jwt_required()
@@ -65,6 +79,7 @@ def create_api():
     result = apis_collection.insert_one(api_data)
     
     api_data['_id'] = result.inserted_id
+    invalidate_user_namespace(user_id, 'apis')
     
     return jsonify({
         'message': 'API created successfully',
@@ -108,6 +123,7 @@ def update_api(api_id):
     apis_collection.update_one({'_id': ObjectId(api_id)}, {'$set': update_data})
     
     updated_api = apis_collection.find_one({'_id': ObjectId(api_id)})
+    invalidate_user_namespace(user_id, 'apis')
     
     return jsonify({
         'message': 'API updated successfully',
@@ -128,5 +144,6 @@ def delete_api(api_id):
         return jsonify({'error': 'API not found'}), 404
     
     apis_collection.delete_one({'_id': ObjectId(api_id)})
+    invalidate_user_namespace(user_id, 'apis')
     
     return jsonify({'message': 'API deleted successfully'}), 200

@@ -21,6 +21,7 @@ A comprehensive full-stack application for managing, monitoring, and analyzing A
 - Token refresh mechanism
 - CORS enabled
 - Production-ready with Gunicorn and Nginx
+- Redis caching layer for read-heavy workloads
 
 ## Tech Stack
 
@@ -318,6 +319,16 @@ X-API-Key: <your-api-key>
    - Average response time
 3. Browse request history with pagination
 
+## Performance & Caching
+
+- Redis backs high-traffic reads to reduce MongoDB load (docker-compose ships with a `redis` service).
+- Cached payloads:
+  - API listings per user/page: TTL 5 minutes
+  - Analytics statistics per user: TTL 1 minute
+  - Authenticated user profile (`/api/auth/me`): TTL 10 minutes
+- Cache invalidates automatically on API writes, log ingestion, and user lifecycle events so data stays consistent.
+- Tune behavior with the new environment variables documented below.
+
 ## Environment Variables
 
 ### Backend (.env)
@@ -327,6 +338,12 @@ SECRET_KEY=your-secret-key
 JWT_SECRET_KEY=your-jwt-secret
 MONGODB_URI=mongodb://localhost:27017/api_management
 PORT=5000
+REDIS_HOST=localhost
+REDIS_PORT=6379
+CACHE_DEFAULT_TTL=300
+CACHE_APIS_TTL=300
+CACHE_STATS_TTL=60
+CACHE_PROFILE_TTL=600
 ```
 
 ### Frontend (.env)
