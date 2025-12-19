@@ -8,7 +8,11 @@ import time
 
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
+# Import limiter from app
+from app import limiter
+
 @execute_bp.route('/<api_id>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+@limiter.limit("100 per hour")
 @api_key_required
 def execute_api(api_id):
     try:
