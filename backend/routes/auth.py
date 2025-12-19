@@ -4,7 +4,9 @@ from database import users_collection
 from models import User
 from utils import serialize_doc
 from bson import ObjectId
+from datetime import datetime
 import validators
+import bcrypt
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -89,4 +91,104 @@ def get_current_user():
     
     return jsonify({
         'user': serialize_doc(user)
+    }), 200
+
+@auth_bp.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    update_fields = {}
+    
+    # Update username if provided
+    if 'username' in data and data['username']:
+        username = data['username'].strip()
+        # Check if username is taken by another user
+        existing = users_collection.find_one({
+            'username': username,
+            '_id': {'$ne': ObjectId(user_id)}
+        })
+        if existing:
+            return jsonify({'error': 'Username already taken'}), 409
+        update_fields['username'] = username
+    
+    # Update email if provided
+    if 'email' in data and data['email']:
+        email = data['email'].strip()
+        if not validators.email(email):
+            return jsonify({'error': 'Invalid email format'}), 400
+        # Check if email is taken by another user
+        existing = users_collection.find_one({
+            'email': email,
+            '_id': {'$ne': ObjectId(user_id)}
+        })
+        if existing:
+            return jsonify({'error': 'Email already taken'}), 409
+        update_fields['email'] = email
+    
+    # Update password if provided
+    if 'password' in data and data['password']:
+        password = data['password']
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        update_fields['password'] = hashed_password.decode('utf-8')
+    
+    if not update_fields:
+        return jsonify({'error': 'No fields to update'}), 400
+    
+    update_fields['updated_at'] = datetime.utcnow()
+    
+    users_collection.update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': update_fields}
+    )
+    
+    updated_user = users_collection.find_one({'_id': ObjectId(user_id)})
+    
+    return jsonify({
+        'message': 'Profile updated successfully',
+        'user': serialize_doc(updated_user)
+    }), 200
+
+@auth_bp.route('/profile/password', methods=['PUT'])
+@jwt_required()
+def change_password():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+    
+    if not all([current_password, new_password]):
+        return jsonify({'error': 'Current password and new password are required'}), 400
+    
+    user = users_collection.find_one({'_id': ObjectId(user_id)})
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Verify current password
+    if not User.verify_password(user['password'], current_password):
+        return jsonify({'error': 'Current password is incorrect'}), 401
+    
+    if len(new_password) < 6:
+        return jsonify({'error': 'New password must be at least 6 characters'}), 400
+    
+    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    
+    users_collection.update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': {
+            'password': hashed_password.decode('utf-8'),
+            'updated_at': datetime.utcnow()
+        }}
+    )
+    
+    return jsonify({
+        'message': 'Password changed successfully'
     }), 200

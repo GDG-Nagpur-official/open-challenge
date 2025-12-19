@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
+import { LogOut, Key, Database, BarChart3, User } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -44,6 +44,10 @@ const Navbar = () => {
               <Link to="/analytics" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <BarChart3 size={18} />
                 Analytics
+              </Link>
+              <Link to="/profile" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <User size={18} />
+                Profile
               </Link>
             </div>
           )}
