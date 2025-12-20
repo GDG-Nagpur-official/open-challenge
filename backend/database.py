@@ -1,8 +1,22 @@
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 from config import Config
+import sys
 
-client = MongoClient(Config.MONGODB_URI)
-db = client.get_database()
+try:
+    client = MongoClient(
+        Config.MONGODB_URI,
+        serverSelectionTimeoutMS=5000
+    )
+    client.server_info()  # Force MongoDB connection
+    db = client.get_database()
+    print("✅ MongoDB connected successfully")
+except ServerSelectionTimeoutError:
+    print("❌ ERROR: Unable to connect to MongoDB. Please check MongoDB service or URI.")
+    sys.exit(1)
+
+
+
 
 users_collection = db['users']
 apis_collection = db['apis']
