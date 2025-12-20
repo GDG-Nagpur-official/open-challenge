@@ -10,6 +10,9 @@ from routes.api_keys import api_keys_bp
 from routes.logs import logs_bp
 from routes.execute import execute_bp
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -48,9 +51,24 @@ def health():
 def not_found(error):
     return jsonify({'error': 'Resource not found'}), 404
 
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return jsonify({
+        "error": "Too Many Requests",
+        "message": "You have exceeded your request quota. Please try again later."
+    }), 429
+
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
+
+# Initialize Limiter
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=Config.PORT, debug=(Config.FLASK_ENV == 'development'))
