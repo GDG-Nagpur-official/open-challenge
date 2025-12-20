@@ -377,3 +377,7 @@ For issues, questions, or contributions, please open an issue on GitHub.
 ---
 
 **Built with ❤️ using Flask and React**
+## API Documentation (Swagger / OpenAPI) 
+This project provides interactive API documentation using Swagger UI. 
+### Sungger UX Access 
+After running the application, open the following URL in your browser: http://localhost:8000/api/docs

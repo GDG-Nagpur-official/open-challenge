@@ -13,6 +13,13 @@ from routes.execute import execute_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
 CORS(app)
 jwt = JWTManager(app)
 

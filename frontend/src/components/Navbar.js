@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
+import { LogOut, Key, Database, BarChart3, MoveDiagonal } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -70,9 +70,30 @@ const Navbar = () => {
             </button>
           </div>
         )}
-      </div>
-    </nav>
+        <>
+    <button 
+      onClick={() => {
+        const current = document.documentElement.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+      }}
+      style={{
+        background: 'transparent',
+        border: '1px solid white',
+        color: 'white',
+        padding: '8px 15px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        marginLeft: 'auto' 
+      }}
+    >
+      🌙 Mode
+    </button>
+    </>
+  </div>
+</nav>
+    
+    
   );
 };
-
 export default Navbar;
+
