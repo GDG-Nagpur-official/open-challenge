@@ -5,10 +5,12 @@ from utils import api_key_required
 from bson import ObjectId
 import requests
 import time
+from app import limiter
 
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
 @execute_bp.route('/<api_id>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
+@limiter.limit("10 per minute")
 @api_key_required
 def execute_api(api_id):
     try:
