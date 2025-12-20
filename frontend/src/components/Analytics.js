@@ -10,24 +10,24 @@ const Analytics = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [statsResponse, logsResponse] = await Promise.all([
-        logsAPI.getStats(),
-        logsAPI.getAll(page, 20)
-      ]);
-      setStats(statsResponse.data);
-      setLogs(logsResponse.data.logs);
-      setTotalPages(logsResponse.data.pages);
-    } catch (error) {
-      toast.error('Failed to fetch analytics data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [statsResponse, logsResponse] = await Promise.all([
+          logsAPI.getStats(),
+          logsAPI.getAll(page, 20)
+        ]);
+        setStats(statsResponse.data);
+        setLogs(logsResponse.data.logs);
+        setTotalPages(logsResponse.data.pages);
+      } catch (error) {
+        toast.error('Failed to fetch analytics data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, [page]);
 

@@ -1,8 +1,10 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import logs_collection
-from utils import serialize_docs
+from app.database import logs_collection
+
 from bson import ObjectId
+
+from app.utils.utils import serialize_docs
 
 logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
 

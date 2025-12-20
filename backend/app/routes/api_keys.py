@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import api_keys_collection
-from models import APIKey
-from utils import serialize_doc, serialize_docs, generate_api_key
+from app.database import api_keys_collection
+from app.models.models import APIKey
 from bson import ObjectId
 from datetime import datetime
+
+from app.utils.utils import generate_api_key, serialize_doc, serialize_docs
 
 api_keys_bp = Blueprint('api_keys', __name__, url_prefix='/api/keys')
 

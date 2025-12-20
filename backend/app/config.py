@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 class Config:
@@ -12,3 +13,4 @@ class Config:
     MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/api_management')
     PORT = int(os.getenv('PORT', 5000))
     FLASK_ENV = os.getenv('FLASK_ENV', 'development')
+    SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")

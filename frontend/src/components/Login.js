@@ -56,6 +56,11 @@ const Login = () => {
           </button>
         </form>
         <p style={{ marginTop: '20px', textAlign: 'center' }}>
+         <Link to="/forgot-password" style={{ fontSize: "14px" }}>
+         Forgot Password?
+        </Link>
+        </p>
+        <p style={{ marginTop: '20px', textAlign: 'center' }}>
           Don't have an account? <Link to="/register">Register</Link>
         </p>
       </div>

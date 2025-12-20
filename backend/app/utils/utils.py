@@ -1,9 +1,9 @@
+import hashlib
 import secrets
 import string
 from functools import wraps
 from flask import request, jsonify
-from flask_jwt_extended import get_jwt_identity
-from database import api_keys_collection
+from app.database import api_keys_collection
 from bson import ObjectId
 
 def generate_api_key(length=32):
@@ -42,3 +42,8 @@ def api_key_required(f):
         return f(*args, **kwargs)
     
     return decorated_function
+
+def generate_reset_token():
+    raw_token = secrets.token_hex(32)
+    hashed_token = hashlib.sha256(raw_token.encode()).hexdigest()
+    return raw_token, hashed_token

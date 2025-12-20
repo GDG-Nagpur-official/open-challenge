@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from database import apis_collection
-from models import API
-from utils import serialize_doc, serialize_docs
-from bson import ObjectId
 from datetime import datetime
+from bson import ObjectId
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from app.database import apis_collection
+from app.models.models import API
+from app.utils.utils import serialize_doc, serialize_docs
 
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 

@@ -13,6 +13,11 @@ services:
       - mongodb_data:/data/db
     networks:
       - api_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -26,11 +31,10 @@ services:
       - FLASK_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017/api_management
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     networks:
       - api_network
-    volumes:
-      - ./backend:/app
 
   frontend:
     build:

@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify
-from database import apis_collection, logs_collection
-from models import Log
-from utils import api_key_required
+from app.database import apis_collection, logs_collection
+from app.models.models import Log
 from bson import ObjectId
 import requests
 import time
+
+from app.utils.utils import api_key_required
 
 execute_bp = Blueprint('execute', __name__, url_prefix='/api/execute')
 
