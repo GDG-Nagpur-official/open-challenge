@@ -8,7 +8,7 @@ from datetime import datetime
 
 apis_bp = Blueprint('apis', __name__, url_prefix='/api/apis')
 
-@apis_bp.route('/', methods=['GET'])
+@apis_bp.route('', methods=['GET'])
 @jwt_required()
 def get_apis():
     user_id = get_jwt_identity()
@@ -42,7 +42,7 @@ def get_api(api_id):
     
     return jsonify({'api': serialize_doc(api)}), 200
 
-@apis_bp.route('/', methods=['POST'])
+@apis_bp.route('', methods=['POST'])
 @jwt_required()
 def create_api():
     user_id = get_jwt_identity()

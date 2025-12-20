@@ -6,7 +6,7 @@ from bson import ObjectId
 
 logs_bp = Blueprint('logs', __name__, url_prefix='/api/logs')
 
-@logs_bp.route('/', methods=['GET'])
+@logs_bp.route('', methods=['GET'])
 @jwt_required()
 def get_logs():
     user_id = get_jwt_identity()
