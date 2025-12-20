@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ThemeContext } from '../context/ThemeContext';
 import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,44 +15,103 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={{
-      background: '#007bff',
-      color: 'white',
-      padding: '15px 20px',
-      marginBottom: '20px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+    <nav
+      style={{
+        backgroundColor: 'var(--primary)',
+        color: 'white',
+        padding: '15px 20px',
+        marginBottom: '20px',
+        boxShadow: 'var(--shadow)',
+        transition: 'background-color 0.3s ease'
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-          <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', fontSize: '20px', fontWeight: 'bold' }}>
+          <Link
+            to="/dashboard"
+            style={{
+              color: 'white',
+              textDecoration: 'none',
+              fontSize: '20px',
+              fontWeight: 'bold'
+            }}
+          >
             API Management
           </Link>
+
           {user && (
             <div style={{ display: 'flex', gap: '20px' }}>
-              <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Link
+                to="/dashboard"
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
                 <Database size={18} />
                 APIs
               </Link>
-              <Link to="/keys" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+
+              <Link
+                to="/keys"
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
                 <Key size={18} />
                 API Keys
               </Link>
-              <Link to="/analytics" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+
+              <Link
+                to="/analytics"
+                style={{
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
                 <BarChart3 size={18} />
                 Analytics
               </Link>
             </div>
           )}
         </div>
+
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span>{user.username}</span>
+
+            <button
+              onClick={toggleTheme}
+              style={{
+                background: 'transparent',
+                border: '1px solid white',
+                color: 'white',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              {theme === 'light' ? 'Dark' : 'Light'}
+            </button>
+
             <button
               onClick={handleLogout}
               style={{
