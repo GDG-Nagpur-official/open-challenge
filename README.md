@@ -348,7 +348,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - JWT tokens for secure authentication
 - API keys for service-to-service authentication
 - CORS configured for security
-- Environment variables for sensitive data
+- Environment variables for sensitive data.
 
 ## Roadmap
 
