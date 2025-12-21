@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Key, Database, BarChart3 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { LogOut, Key, Database, BarChart3, Moon, Sun } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,35 +15,23 @@ const Navbar = () => {
   };
 
   return (
-    <nav style={{
-      background: '#007bff',
-      color: 'white',
-      padding: '15px 20px',
-      marginBottom: '20px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-          <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', fontSize: '20px', fontWeight: 'bold' }}>
+    <nav className="navbar">
+      <div className="navbar-container">
+        <div className="navbar-left">
+          <Link to="/dashboard" className="navbar-brand">
             API Management
           </Link>
           {user && (
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <div className="navbar-links">
+              <Link to="/dashboard" className="navbar-link">
                 <Database size={18} />
                 APIs
               </Link>
-              <Link to="/keys" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Link to="/keys" className="navbar-link">
                 <Key size={18} />
                 API Keys
               </Link>
-              <Link to="/analytics" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Link to="/analytics" className="navbar-link">
                 <BarChart3 size={18} />
                 Analytics
               </Link>
@@ -49,21 +39,18 @@ const Navbar = () => {
           )}
         </div>
         {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="navbar-right">
             <span>{user.username}</span>
             <button
+              onClick={toggleTheme}
+              className="theme-toggle"
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+            <button
               onClick={handleLogout}
-              style={{
-                background: 'transparent',
-                border: '1px solid white',
-                color: 'white',
-                padding: '8px 15px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}
+              className="logout-btn"
             >
               <LogOut size={18} />
               Logout
